@@ -15,6 +15,19 @@ ts.get_hist_data('600848.sh'[0:6],"2018-6-10","2018-6-14")
 w.start()
 tradedate=w.tdays("2018-01-01", "2018-08-07", "").Data[0]
 
+def DataHandler():
+    pass
+
+def Strategy():
+    pass
+
+def Portfolio():
+    pass
+
+def ExecutionHandler():
+    pass
+
+
 
 class go(object):
     def __init__(self):
@@ -31,10 +44,10 @@ class go(object):
     def run(self):
         # run_once function
         # Declare the components with respective parameters
-        bars = DataHandler(..)
-        strategy = Strategy(..)
-        port = Portfolio(..)
-        broker = ExecutionHandler(..)
+        bars = DataHandler()
+        strategy = Strategy()
+        port = Portfolio()
+        broker = ExecutionHandler()
         eventengine = EventEngine()
         while True:
             eventengine.put(event)
