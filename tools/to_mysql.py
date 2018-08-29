@@ -8,7 +8,7 @@ class ToMysql(object):
         self.db_host = "localhost"
         self.db_user = "root"
         self.db_pass = "8261426"
-        self.db_name = "x"
+        self.db_name = "stock"
         # 打开数据库连接
         self.db = pymysql.connect(self.db_host, self.db_user, self.db_pass,self.db_name
                                   , use_unicode=True, charset="utf8")
