@@ -18,14 +18,16 @@ class ToMysql(object):
     def creat(self, table_name):
         self.cursor.execute("DROP TABLE IF EXISTS %s" % table_name)
         sql = """CREATE TABLE %s (
-         date  DATE PRIMARY KEY,
+         date  CHARACTER,
+         code  CHARACTER,
          open  DOUBLE,
          high  DOUBLE,  
          low   DOUBLE,
          close DOUBLE,
          volume  DOUBLE,
          pct_chg  DOUBLE,
-         trade_status varchar(20) character set utf8   
+         trade_status varchar(40) character set utf8,
+         PRIMARY KEY (date,code)    
                        )""" %table_name
         self.cursor.execute(sql)
         self.cursor.execute('SET NAMES utf8;')
@@ -35,17 +37,18 @@ class ToMysql(object):
 
     def insert(self, table_name, data):
         for i in range(len(data)):
-            data_date = data.index[i].strftime('%Y-%m-%d')
-            data_open = data["OPEN"][i]
-            data_high = data["HIGH"][i]
-            data_low = data["LOW"][i]
-            data_close = data["CLOSE"][i]
-            data_volume = data["VOLUME"][i]
-            data_pct_chg = data["PCT_CHG"][i]
-            data_trade_status = data["TRADE_STATUS"][i]
-            sql = """INSERT INTO %s(date,open, high, low, close,volume,pct_chg,trade_status)
-            VALUES (%s,%f,%f,%f,%f,%f,%f,%s)""" % (table_name, repr(data_date), data_open, data_high, data_low\
-                                                 , data_close, data_volume, data_pct_chg, repr(data_trade_status))
+            data_date = data["time"][i]
+            data_code = data["thscode"][i]
+            data_open = data["ths_open_price_stock"][i]
+            data_high = data["ths_high_price_stock"][i]
+            data_low = data["ths_low_stock"][i]
+            data_close = data["ths_close_price_stock"][i]
+            data_volume = data["ths_amt_stock"][i]
+            data_pct_chg = data["ths_chg_ratio_stock"][i]
+            data_trade_status = data["ths_trading_status_stock"][i]
+            sql = """INSERT INTO %s(date,code,open, high, low, close,volume,pct_chg,trade_status)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)""" % (table_name, repr(data_date),repr(data_code), data_open, data_high, data_low, data_close, data_volume, data_pct_chg, repr(data_trade_status))
+            sql=sql.replace('None', 'NULL')
             self.cursor.execute(sql)
             self.db.commit()
 

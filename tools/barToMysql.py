@@ -27,6 +27,9 @@ A=getBar("2018-08-20")
 A.getCodeList()
 A.getBar()
 
-A.bar[]
+A.bar.iloc[1:3,:]["thscode"][1]
+
 
 To=ToMysql()
+To.insert("bar",A.bar)
+
