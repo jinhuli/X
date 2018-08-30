@@ -31,5 +31,7 @@ A.bar.iloc[1:3,:]["thscode"][1]
 
 
 To=ToMysql()
+To.creat("bar")
+
 To.insert("bar",A.bar)
 

@@ -26,7 +26,7 @@ class ToMysql(object):
          close DOUBLE,
          volume  DOUBLE,
          pct_chg  DOUBLE,
-         trade_status varchar(40) character set utf8,
+         trade_status varchar(255) character set utf8,
          PRIMARY KEY (date,code)    
                        )""" %table_name
         self.cursor.execute(sql)
