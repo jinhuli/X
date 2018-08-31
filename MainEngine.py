@@ -9,14 +9,11 @@ import os
 from threading import Thread, Lock
 
 import time
-from easyquant.log_handler.default_handler import DefaultLogHandler
-from easyquant.main_engine import MainEngine
-from easyquant.multiprocess.strategy_wrapper import ProcessWrapper
 from ClockEngine import ClockEngine
-from fixeddataengine import FixedDataEngine
+from dataEngine import FixedDataEngine
 
 
-class FixedMainEngine(MainEngine):
+class MainEngine(MainEngine):
     def __init__(self, broker, need_data='ht.json', quotation_engines=[FixedDataEngine],
                  log_handler=DefaultLogHandler(), ext_stocks=[]):
         super(FixedMainEngine, self).__init__(broker, need_data, [], log_handler)

@@ -16,16 +16,16 @@ w.start()
 tradedate=w.tdays("2018-01-01", "2018-08-07", "").Data[0]
 
 def DataHandler():
-    pass
+    print("启动市场事件处理引擎")
 
 def Strategy():
-    pass
+    print("启动策略事件处理引擎")
 
 def Portfolio():
-    pass
+    print("启动组合事件处理引擎")
 
 def ExecutionHandler():
-    pass
+    print("启动执行事件处理引擎")
 
 
 
