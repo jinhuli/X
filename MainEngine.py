@@ -1,8 +1,5 @@
 
-# !/usr/bin/python
-# vim: set fileencoding=utf8 :
 #
-__author__ = 'keping.chu'
 
 import importlib
 import os
@@ -13,7 +10,7 @@ from ClockEngine import ClockEngine
 from dataEngine import FixedDataEngine
 
 
-class MainEngine(MainEngine):
+class MainEngine(object):
     def __init__(self, broker, need_data='ht.json', quotation_engines=[FixedDataEngine],
                  log_handler=DefaultLogHandler(), ext_stocks=[]):
         super(FixedMainEngine, self).__init__(broker, need_data, [], log_handler)
