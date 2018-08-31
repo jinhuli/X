@@ -16,22 +16,31 @@ class getBar(object):
         code_list=THS_DataPool('block',self.date+';001005010', 'date:Y,thscode:Y,security_name:Y')
         self.code_list_pd=THS_Trans2DataFrame(code_list)["THSCODE"].tolist()
 
-    def getBar(self):
-
-        Bar=THS_DateSerial(",".join(self.code_list_pd),'ths_open_price_stock;ths_high_price_stock;ths_low_stock;ths_close_price_stock;ths_amt_stock;ths_chg_ratio_stock;ths_trading_status_stock',\
-                           '100;100;100;100;;;','Days:Tradedays,Fill:Previous,Interval:D',self.date,self.date)
+    def getBar_ifindBar(self):
+        ",".join(self.code_list_pd)
+        Bar=THS_HistoryQuotes('600321.SH','open,high,low,close,changeRatio,amount,totalShares,totalCapital','Interval:D,CPS:1,baseDate:1900-01-01,Currency:YSHB,fill:Previous',self.date,self.date)
         self.bar=THS_Trans2DataFrame(Bar)
 
+    def getBar_series(self):
 
-A=getBar("2018-08-20")
-A.getCodeList()
-A.getBar()
-
-A.bar.iloc[1:3,:]["thscode"][1]
+        pass
 
 
 To=ToMysql()
 To.creat("bar")
 
 To.insert("bar",A.bar)
+To.delete("bar","2018-08-20")
+To.close()
+
+To=ToMysql()
+date_A=THS_DateQuery('SSE','dateType:0,period:D,dateFormat:0','2013-8-30','2014-8-29')["tables"]["time"]
+for day in date_A:
+    print(day)
+    A = getBar(day)
+    A.getCodeList()
+    A.getBar_ifindBar()
+    To.insert("bar", A.bar)
+To.close()
+
 

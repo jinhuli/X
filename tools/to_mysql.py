@@ -18,15 +18,16 @@ class ToMysql(object):
     def creat(self, table_name):
         self.cursor.execute("DROP TABLE IF EXISTS %s" % table_name)
         sql = """CREATE TABLE %s (
-         date  CHARACTER,
-         code  CHARACTER,
+         date  CHAR(16),
+         code  CHAR(16),
          open  DOUBLE,
          high  DOUBLE,  
          low   DOUBLE,
          close DOUBLE,
-         volume  DOUBLE,
          pct_chg  DOUBLE,
-         trade_status varchar(255) character set utf8,
+         volume  DOUBLE,
+         totalShares DOUBLE,
+         totalCapital DOUBLE,
          PRIMARY KEY (date,code)    
                        )""" %table_name
         self.cursor.execute(sql)
@@ -39,18 +40,26 @@ class ToMysql(object):
         for i in range(len(data)):
             data_date = data["time"][i]
             data_code = data["thscode"][i]
-            data_open = data["ths_open_price_stock"][i]
-            data_high = data["ths_high_price_stock"][i]
-            data_low = data["ths_low_stock"][i]
-            data_close = data["ths_close_price_stock"][i]
-            data_volume = data["ths_amt_stock"][i]
-            data_pct_chg = data["ths_chg_ratio_stock"][i]
-            data_trade_status = data["ths_trading_status_stock"][i]
-            sql = """INSERT INTO %s(date,code,open, high, low, close,volume,pct_chg,trade_status)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)""" % (table_name, repr(data_date),repr(data_code), data_open, data_high, data_low, data_close, data_volume, data_pct_chg, repr(data_trade_status))
+            data_open = data["open"][i]
+            data_high = data["high"][i]
+            data_low = data["low"][i]
+            data_close = data["close"][i]
+            data_volume = data["amount"][i]
+            data_pct_chg = data["changeRatio"][i]
+            data_shares = data["totalShares"][i]
+            data_capital = data["totalCapital"][i]
+            sql = """INSERT INTO %s(date,code,open, high, low, close,pct_chg,volume,totalShares,totalCapital)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""" % (table_name,repr(data_date),repr(data_code), data_open, data_high, data_low, data_close,data_pct_chg, data_volume,data_shares,data_capital)
             sql=sql.replace('None', 'NULL')
             self.cursor.execute(sql)
             self.db.commit()
+
+
+    def delete(self,table_name,date):
+        sql="""delete from %s where date=%s""" %(table_name,repr(date))
+        self.cursor.execute(sql)
+        self.db.commit()
+
 
     def get_data(self):
         pass
