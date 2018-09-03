@@ -11,7 +11,6 @@ def IsTradeDate(date):
         return 0
 
 
-
 class ClockEngine():
     """
     时间推送引擎

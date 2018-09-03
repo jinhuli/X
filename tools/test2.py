@@ -14,8 +14,7 @@ from datetime import datetime
 
 import time
 w.start()
-from EventEngine import Event, EventEngine
-from ClockEngine import ClockEngine
+
 from tools.get_tushare_data import *
 w.start()
 tradedate=w.tdays("2018-01-01", "2018-04-07", "").Data[0]

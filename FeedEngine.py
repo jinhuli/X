@@ -11,12 +11,12 @@ class MarketEngine:
     EventType = 'Market'
     PushInterval = 1
 
-    def __init__(self, event_engine, clock_engine):
+    def __init__(self, event_engine, clock_engine,date):
         self.event_engine = event_engine
         self.clock_engine = clock_engine
+        self.date=date
         self.is_active = True
         self.quotation_thread = Thread(target=self.push_quotation, name="QuotationEngine.%s" % self.EventType)
-        self.quotation_thread.setDaemon(False)
 
     def start(self):
         self.quotation_thread.start()
@@ -38,6 +38,7 @@ class MarketEngine:
 
     def fetch_quotation(self):
         # return your quotation
+
         return None
 
     def init(self):
@@ -48,4 +49,31 @@ class MarketEngine:
         # for receive quit signal
         for _ in range(int(self.PushInterval) + 1):
             time.sleep(1)
+
+
+if __name__ == '__main__':
+    from WindPy import w
+    from EventEngine import Event, EventEngine
+    from ClockEngine import ClockEngine
+    w.start()
+    tradedate = w.tdays("2018-01-01", "2018-04-07", "").Data[0]
+
+    clock = ClockEngine(EventEngine(), tradedate)
+
+    from tools.get_tushare_data import *
+
+
+    def clockhandel(Event):
+        date = Event.data.strftime("%Y-%m-%d")
+        bar = tusharebar(date).getOneBar("600008.SH")
+        print("传递bar")
+        print(bar)
+
+
+
+    clock.register(clockhandel)
+    clock.start()
+    a=clock.event_engine.start()
+
+
 
