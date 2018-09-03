@@ -17,8 +17,8 @@ class getBar(object):
         self.code_list_pd=THS_Trans2DataFrame(code_list)["THSCODE"].tolist()
 
     def getBar_ifindBar(self):
-        ",".join(self.code_list_pd)
-        Bar=THS_HistoryQuotes('600321.SH','open,high,low,close,changeRatio,amount,totalShares,totalCapital','Interval:D,CPS:1,baseDate:1900-01-01,Currency:YSHB,fill:Previous',self.date,self.date)
+
+        Bar=THS_HistoryQuotes(",".join(self.code_list_pd),'open,high,low,close,changeRatio,amount,totalShares,totalCapital','Interval:D,CPS:1,baseDate:1900-01-01,Currency:YSHB,fill:Previous',self.date,self.date)
         self.bar=THS_Trans2DataFrame(Bar)
 
     def getBar_series(self):
@@ -32,9 +32,9 @@ To.creat("bar")
 To.insert("bar",A.bar)
 To.delete("bar","2018-08-20")
 To.close()
-
+2014-8-29
 To=ToMysql()
-date_A=THS_DateQuery('SSE','dateType:0,period:D,dateFormat:0','2013-8-30','2014-8-29')["tables"]["time"]
+date_A=THS_DateQuery('SSE','dateType:0,period:D,dateFormat:0','2015-09-30','2015-12-31')["tables"]["time"]
 for day in date_A:
     print(day)
     A = getBar(day)

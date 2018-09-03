@@ -49,6 +49,7 @@ class go(object):
         port = Portfolio()
         broker = ExecutionHandler()
         eventengine = EventEngine()
+
         while True:
             eventengine.put(event)
         while True:
