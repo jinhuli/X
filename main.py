@@ -5,9 +5,8 @@ from ClockEngine import ClockEngine
 from FeedEngine import MarketEngine
 from strategy import strategy
 from queue import Queue, Empty
-#策略名称  某某策略
-EVENT_ARTICAL = "Event_Artical"
-calendar = []
+from fortfolio_stats import *
+
 from WindPy import w
 
 import tushare as ts
@@ -32,31 +31,49 @@ def ExecutionHandler():
 
 class go(object):
     def __init__(self):
-        self.date_list=[]
+        self.event_engine=EventEngine()
         self.feed_list = []
         self.portfolio_list=[]
         self.strategy_list = []
         self.order_list=[]
         self.context={}
-        self.clock = ClockEngine(EventEngine(), tradedate)
-        self.Market = MarketEngine(EventEngine(),self.clock)
-        self.strategy= strategy()
+        self.dateList=[]
+        self.clock = ClockEngine(self.event_engine, tradedate)
+        self.Market = MarketEngine(self.event_engine,self.clock)
+        self.strategy= strategy(self.event_engine,self.Market)
+
+    def strategy_listen_event(self, strategy, _type="listen"):
+        """
+        所有策略要监听的事件都绑定到这里
+        :param strategy: Strategy()
+        :param _type: "listen" OR "unlisten"
+        :return:
+        """
+        func = {
+            "listen": self.event_engine.register,
+            "unlisten": self.event_engine.unregister,
+        }.get(_type)
+
+        # 行情引擎的事件
+        for quotation_engine in self.quotation_engines:
+            func(quotation_engine.EventType, strategy.run)
+
+        # 时钟事件
+        func(ClockEngine.EventType, strategy.clock)
 
     def run(self):
         # run_once function
+        self.initialization()
         # Declare the components with respective parameters
-        bars = DataHandler()
-        strategy = Strategy()
-        port = Portfolio()
-        broker = ExecutionHandler()
-        eventengine = EventEngine()
+
+        self.event_engine.start()
 
         while True:
             eventengine.put(event)
         while True:
             try:
 
-                event = events.get(False)
+                event = self.event_engine.get(False)
             except queue.Empty:
                 break
 
@@ -75,6 +92,7 @@ class go(object):
                     port.update_fill(event)
 
     def initialization(self):
+        self.portfolio=portfolio()
 
     def setContext(self,context={}):
 

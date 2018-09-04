@@ -16,17 +16,16 @@ class ClockEngine():
     时间推送引擎
     1. 提供bar序列.
     """
-    EventType = 'clock_time'
-    def __init__(self, event_engine,date):
+    def __init__(self, EventEngine,ClockEvent):
         """
-        :param event_engine:
+        :param clockEvent:
         :return:
         """
-        self.event_engine = event_engine
+        self.event_engine = EventEngine
         self.clock_engine_thread = Thread(target=self.clocktick, name="ClockEngine")
         self.sleep_time = 1
-        self.date=date
-        self.EventType = "clock_time"
+        self.date=ClockEvent.data
+        self.EventType = ClockEvent.event_type
 
     def start(self):
         self.clock_engine_thread.start()

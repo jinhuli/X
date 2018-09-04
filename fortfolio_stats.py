@@ -27,10 +27,10 @@ TRADING_DAYS_PER_WEEK = 5
 
 class portfolioEngine():
     """
-    时间推送引擎
-    1. 提供bar序列.
+    组合变动引擎
+    1. 提供回测组合序列.
     """
-    EventType = portfolio'
+    EventType = "portfolio"
     def __init__(self,date,event_engine,feed,strategy):
         """
         :param event_engine:
