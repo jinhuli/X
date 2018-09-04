@@ -80,10 +80,12 @@ class EventEngine:
     def queue_size(self):
         return self.__queue.qsize()
 
+
 class ClockEvent(Event):
-    def __init__(self,event_type="Clock",data):
-        super(ClockEvent, self).__init__()
-        self.event_type="Clock"
+    def __init__(self, event_type, data):
+        super(ClockEvent, self).__init__(event_type, data)
+        self.event_type = "Clock"
+
 
 class MarketEvent(Event):
     def __init__(self):
