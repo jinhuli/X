@@ -48,12 +48,23 @@ class factor:
     ##    EV/EBITDA	企业价值倍数
     ##    DYR	近12个月股息率
 
-    ########################################
+    ###############################################
 
-    def get_values_factor(self):
+    #############################质量因子##########
+    ##      ROE_TTM	净资产收益率
+    ##      ROA_TTM	资产回报率
+    ##      GORSS_PROFIT_MARGIN_TTM	销售毛利率
+    ##      ROC_TTM	资本报酬率
+    ##      NET_PROFIT_MARGIN_TTM	销售净利率
+    ##      TOTAL_ASSETS_TURNOVER_TTM	总资产周转率
+    ##      FIXED_ASSETS_TURNOVER_TTM	固定资产周转率
+    ##      CURRENT_SAAENTS_TURNOVER_TTM	流动资产周转率
+    ################################################
+
+    def get_values_factor(self,codeList):
         dict_df = OrderedDict()
-        factors_value = THS_DateSerial(",".join(trade_codes), 'ths_or_yoy_stock', '',
-                       'Days:Tradedays,Fill:Previous,Interval:D','2018-01-22', '2018-08-22')
+        factors_value = THS_DateSerial(",".join(codeList), 'ths_or_yoy_stock', '',
+                       'Days:Tradedays,Fill:Previous,Interval:D', self.dates, self.dates)
             # 估值因子value_factor
         factors_value = THS_Trans2DataFrame(factors_value)
 
@@ -67,7 +78,7 @@ class factor:
     # 获取规模因子：对数总市值、对数流通市值
 
     ################################################
-    def get_size_factor(self):
+    def get_size_factor(self,codeList):
         dict_df = OrderedDict()
         for i in range(len(self.dates) - 1):
             date = self.dates[i]
@@ -113,13 +124,4 @@ class factor:
         return growth_factors
 
 
-#############################质量因子#####################################
-##      ROE_TTM	净资产收益率
-##      ROA_TTM	资产回报率
-##      GORSS_PROFIT_MARGIN_TTM	销售毛利率
-##      ROC_TTM	资本报酬率
-##      NET_PROFIT_MARGIN_TTM	销售净利率
-##      TOTAL_ASSETS_TURNOVER_TTM	总资产周转率
-##      FIXED_ASSETS_TURNOVER_TTM	固定资产周转率
-##      CURRENT_SAAENTS_TURNOVER_TTM	流动资产周转率
-#########################################################################
+    def get

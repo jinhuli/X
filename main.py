@@ -18,6 +18,7 @@ tradedate=w.tdays("2018-01-01", "2018-08-07", "").Data[0]
 def DataHandler():
     print("启动市场事件处理引擎")
 
+
 def Strategy():
     print("启动策略事件处理引擎")
 

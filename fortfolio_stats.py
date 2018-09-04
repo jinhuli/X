@@ -24,6 +24,45 @@ TRADING_DAYS_PER_YEAR = 252
 TRADING_DAYS_PER_MONTH = 20
 TRADING_DAYS_PER_WEEK = 5
 
+
+class portfolioEngine():
+    """
+    时间推送引擎
+    1. 提供bar序列.
+    """
+    EventType = portfolio'
+    def __init__(self,date,event_engine,feed,strategy):
+        """
+        :param event_engine:
+        :return:
+        """
+        self.event_engine = event_engine
+        self.clock_engine_thread = Thread(target=self.clocktick, name="ClockEngine")
+        self.sleep_time = 1
+        self.date=date
+        self.EventType = "clock_time"
+
+    def start(self):
+        self.clock_engine_thread.start()
+
+    def port(self):
+        for i in self.date:
+            self.push_clock_event(i)
+            print("传递数据和持仓变化%s" %i)
+
+
+    def push_clock_event(self,date):
+        event = Event(event_type=self.EventType, data=date)
+        self.event_engine.put(event)
+
+    def stop(self):
+        self.is_active = False
+
+    def register(self,handle):
+        self.event_engine.register(self.EventType,handle)
+
+
+
 class portfolio(object):
     def __init__(self):
         self.nav=pd.DataFrame(columns = ["nav"])
