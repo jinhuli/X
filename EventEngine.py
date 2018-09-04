@@ -8,7 +8,7 @@ from threading import Thread
 class Event:
     """事件对象"""
 
-    def __init__(self,event_type, data=None):
+    def __init__(self,event_type, data):
         self.event_type=event_type
         self.data = data
 
@@ -81,23 +81,23 @@ class EventEngine:
         return self.__queue.qsize()
 
 class ClockEvent(Event):
-    def __init__(self,data):
-        super(ClockEvent, self).__init__(data)
+    def __init__(self,event_type="Clock",data):
+        super(ClockEvent, self).__init__()
         self.event_type="Clock"
 
 class MarketEvent(Event):
-    def __init__(self,data):
-        super(Event, self).__init__(data)
+    def __init__(self):
+        super(MarketEvent, self).__init__()
         self.event_type = 'Market'
 
 
 class StrategyEvent(Event):
-    def __init__(self,data):
-        super(Event, self).__init__(data)
+    def __init__(self):
+        super(StrategyEvent, self).__init__()
         self.event_type = 'strategy'
 
 
 class PositionEvent(Event):
-    def __init__(self,data):
-        super(Event, self).__init__(data)
+    def __init__(self):
+        super(PositionEvent, self).__init__()
         self.event_type = 'position'

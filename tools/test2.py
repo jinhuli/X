@@ -5,7 +5,6 @@ from WindPy import w
 from EventEngine import *
 
 
-from
 import time
 w.start()
 
@@ -13,7 +12,7 @@ from tools.get_tushare_data import *
 w.start()
 tradedate=w.tdays("2018-01-01", "2018-04-07", "").Data[0]
 date=w.tdays("2018-01-01", "2018-04-01", "Days=Alldays").Data[0]
-clockevent=ClockEvent(tradedate)
+clockevent=ClockEvent("Clock",tradedate)
 clock=ClockEngine(EventEngine(),clockevent)
 
 from tools.get_tushare_data import *
