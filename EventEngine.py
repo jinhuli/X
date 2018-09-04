@@ -48,6 +48,8 @@ class EventEngine:
             for handler in self.__handlers[event.event_type]:
                 handler(event)
 
+
+
     def start(self):
         """引擎启动"""
         self.__active = True
@@ -88,18 +90,18 @@ class ClockEvent(Event):
 
 
 class MarketEvent(Event):
-    def __init__(self):
-        super(MarketEvent, self).__init__()
-        self.event_type = 'Market'
+    def __init__(self, event_type, data):
+        super(MarketEvent, self).__init__(event_type, data)
+        self.event_type = "Market"
 
 
 class StrategyEvent(Event):
-    def __init__(self):
-        super(StrategyEvent, self).__init__()
-        self.event_type = 'strategy'
+    def __init__(self, event_type, data):
+        super(StrategyEvent, self).__init__(event_type, data)
+        self.event_type = 'Strategy'
 
 
 class PositionEvent(Event):
-    def __init__(self):
-        super(PositionEvent, self).__init__()
-        self.event_type = 'position'
+    def __init__(self, event_type, data):
+        super(PositionEvent, self).__init__(event_type, data)
+        self.event_type = 'Position'

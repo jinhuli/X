@@ -11,10 +11,10 @@ class MarketEngine:
     EventType = 'Market'
     PushInterval = 1
 
-    def __init__(self, event_engine, clock_engine,date):
+    def __init__(self, event_engine, ClockEngine , date):
         self.event_engine = event_engine
-        self.clock_engine = clock_engine
-        self.date=date
+        self.clock_engine = ClockEngine
+        self.date = date
         self.is_active = True
         self.quotation_thread = Thread(target=self.push_quotation, name="QuotationEngine.%s" % self.EventType)
 
@@ -34,7 +34,6 @@ class MarketEngine:
             event = Event(event_type=self.EventType, data=response_data)
             self.event_engine.put(event)
             self.wait()
-
 
     def fetch_quotation(self):
         # return your quotation
