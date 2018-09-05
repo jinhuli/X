@@ -2,7 +2,7 @@
 # coding: utf-8
 from threading import Thread
 
-from EventEngine import *
+from EventEngine import Event,EventEngine,ClockEvent
 
 def IsTradeDate(date):
     if date in tradedate:
@@ -37,7 +37,7 @@ class ClockEngine():
             print("传递时间%s" %i)
 
     def push_clock_event(self,data):
-        event = Event(event_type=self.EventType,data= data)
+        event = Event(event_type=self.EventType,data=data)
         self.event_engine.put(event)
 
     def stop(self):
@@ -50,6 +50,7 @@ class ClockEngine():
 if __name__ == '__main__':
     from WindPy import w
     from EventEngine import *
+    from ClockEngine import *
     w.start()
     tradedate = w.tdays("2018-01-01", "2018-04-07", "").Data[0]
     clocks = ClockEvent("clock", tradedate)
@@ -61,6 +62,8 @@ if __name__ == '__main__':
         bar = tusharebar(date).getOneBar("600008.SH")
         print("传递bar")
         print(bar)
+
+
 
     from tools.get_tushare_data import *
 

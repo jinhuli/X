@@ -5,7 +5,7 @@ from ClockEngine import ClockEngine
 from FeedEngine import MarketEngine
 from strategy import strategy
 from queue import Queue, Empty
-from fortfolio_stats import *
+from fortfolio import *
 
 from WindPy import w
 
@@ -14,7 +14,7 @@ ts.get_hist_data('600848.sh'[0:6],"2018-6-10","2018-6-14")
 w.start()
 tradedate=w.tdays("2018-01-01", "2018-08-07", "").Data[0]
 
-def DataHandler():
+def FeedHandler():
     print("启动市场事件处理引擎")
 
 
@@ -38,9 +38,9 @@ class go(object):
         self.order_list=[]
         self.context={}
         self.dateList=[]
-        self.clock = ClockEngine(self.event_engine, tradedate)
-        self.Market = MarketEngine(self.event_engine,self.clock)
-        self.strategy= strategy(self.event_engine,self.Market)
+        self.clock = ClockEngine(EventEngine(), tradedate)
+        self.Market = MarketEngine(EventEngine())
+        self.strategy= strategy(EventEngine())
 
     def strategy_listen_event(self, strategy, _type="listen"):
         """

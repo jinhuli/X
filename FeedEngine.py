@@ -1,6 +1,10 @@
 # coding: utf-8
 import time
+from WindPy import w
+from EventEngine import *
+from ClockEngine import *
 
+w.start()
 from threading import Thread
 
 from EventEngine import Event
@@ -8,17 +12,21 @@ from EventEngine import Event
 
 class MarketEngine:
     """行情推送引擎基类"""
+
     EventType = 'Market'
     PushInterval = 1
 
-    def __init__(self, event_engine, ClockEngine , date):
+    def __init__(self,event_engine,clock_engine):
+
         self.event_engine = event_engine
-        self.clock_engine = ClockEngine
-        self.date = date
+        self.clock_engine = clock_engine
+        self.context = {}
+
         self.is_active = True
-        self.quotation_thread = Thread(target=self.push_quotation, name="QuotationEngine.%s" % self.EventType)
+        self.quotation_thread = Thread(target=self.push_quotation, name="%s" % self.EventType)
 
     def start(self):
+        self.is_active = True
         self.quotation_thread.start()
 
     def stop(self):
@@ -26,16 +34,19 @@ class MarketEngine:
 
     def push_quotation(self):
         while self.is_active:
-            try:
-                response_data = self.fetch_quotation()
-            except:
-                self.wait()
-                continue
-            event = Event(event_type=self.EventType, data=response_data)
+            clock_data = self.fetch_clock()
+            date = clock_data.data.strftime("%Y-%m-%d")
+            bar = tusharebar(date).getOneBar("600008.SH")
+            event = Event(event_type=self.EventType, data=bar)
+            print("传递bar")
+            print(bar)
             self.event_engine.put(event)
-            self.wait()
 
-    def fetch_quotation(self):
+
+    def fetch_clock(self):
+        self.clock_engine.event_engine.queue.get(block=True, timeout=1)
+
+
         # return your quotation
 
         return None
@@ -50,29 +61,19 @@ class MarketEngine:
             time.sleep(1)
 
 
+
+
+
 if __name__ == '__main__':
     from WindPy import w
     from EventEngine import Event, EventEngine
     from ClockEngine import ClockEngine
+    from FeedEngine import MarketEngine
     w.start()
     tradedate = w.tdays("2018-01-01", "2018-04-07", "").Data[0]
+    clocks = ClockEvent("clock", tradedate)
 
-    clock = ClockEngine(EventEngine(), tradedate)
-
-    from tools.get_tushare_data import *
-
-
-    def clockhandel(Event):
-        date = Event.data.strftime("%Y-%m-%d")
-        bar = tusharebar(date).getOneBar("600008.SH")
-        print("传递bar")
-        print(bar)
-
-
-
-    clock.register(clockhandel)
-    clock.start()
-    a=clock.event_engine.start()
+    M=MarketEngine(EventEngine(),ClockEngine(EventEngine(),clocks))
 
 
 

@@ -8,7 +8,7 @@ from threading import Thread
 class Event:
     """事件对象"""
 
-    def __init__(self,event_type, data):
+    def __init__(self,event_type,data):
         self.event_type=event_type
         self.data = data
 
@@ -19,7 +19,7 @@ class EventEngine:
     def __init__(self):
         """初始化事件引擎"""
         # 事件队列
-        self.__queue = Queue()
+        self.queue = Queue()
 
         # 事件引擎开关
         self.__active = False
@@ -34,10 +34,10 @@ class EventEngine:
         """启动引擎"""
         while self.__active:
             try:
-                event = self.__queue.get(block=True, timeout=1)
-                ##handle_thread = Thread(target=self.__process, name="EventEngine.__process", args=(event,))
-                ##handle_thread.start()
-                self.__process(self, event)
+                event = self.queue.get(block=True, timeout=1)
+                #handle_thread = Thread(target=self.__process, name="EventEngine.__process", args=(event,))
+                #handle_thread.start()
+                self.__process(event)
             except Empty:
                 pass
 
@@ -77,11 +77,11 @@ class EventEngine:
             self.__handlers.pop(event_type)
 
     def put(self, event):
-        self.__queue.put(event)
+        self.queue.put(event)
 
     @property
     def queue_size(self):
-        return self.__queue.qsize()
+        return self.queue.qsize()
 
 
 class ClockEvent(Event):
