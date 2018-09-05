@@ -32,12 +32,12 @@ class ClockEngine():
         self.clock_engine_thread.start()
 
     def clocktick(self):
-        for i in self.date:
+        for i in self.data:
             self.push_clock_event(i)
             print("传递时间%s" %i)
 
-    def push_clock_event(self):
-        event = Event(event_type=self.EventType, data=self.date)
+    def push_clock_event(self,data):
+        event = Event(event_type=self.EventType,data= data)
         self.event_engine.put(event)
 
     def stop(self):
@@ -50,7 +50,6 @@ class ClockEngine():
 if __name__ == '__main__':
     from WindPy import w
     from EventEngine import *
-    from ClockEngine import ClockEngine
     w.start()
     tradedate = w.tdays("2018-01-01", "2018-04-07", "").Data[0]
     clocks = ClockEvent("clock", tradedate)
