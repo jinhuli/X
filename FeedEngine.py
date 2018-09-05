@@ -12,6 +12,7 @@ from EventEngine import Event
 
 class MarketEngine:
     """行情推送引擎基类"""
+    from tools.get_tushare_data import *
 
     EventType = 'Market'
     PushInterval = 1
@@ -49,8 +50,6 @@ class MarketEngine:
 
         # return your quotation
 
-        return None
-
     def init(self):
         # do something init
         pass
@@ -66,12 +65,17 @@ class MarketEngine:
 
 if __name__ == '__main__':
     from WindPy import w
-    from EventEngine import Event, EventEngine
+    from EventEngine import Event, EventEngine,ClockEvent
     from ClockEngine import ClockEngine
     from FeedEngine import MarketEngine
     w.start()
     tradedate = w.tdays("2018-01-01", "2018-04-07", "").Data[0]
     clocks = ClockEvent("clock", tradedate)
+    def clockhandel(Event):
+        date = Event.data.strftime("%Y-%m-%d")
+        bar = tusharebar(date).getOneBar("600008.SH")
+        print("传递bar")
+        print(bar)
 
     M=MarketEngine(EventEngine(),ClockEngine(EventEngine(),clocks))
 
