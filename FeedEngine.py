@@ -78,6 +78,17 @@ if __name__ == '__main__':
         print(bar)
 
     M=MarketEngine(EventEngine(),ClockEngine(EventEngine(),clocks))
+    import queue
+
+    events = queue.Queue()
+    class test:
+        def __init__(self):
+            pass
+
+        def aa(self):
+            events.put(1)
+
+
 
 
 

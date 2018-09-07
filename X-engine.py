@@ -1,21 +1,13 @@
-# coding: utf-8
 
-from collections import defaultdict
 from queue import Queue, Empty
+from collections import defaultdict
 from threading import Thread
-events=Queue()
-
-class Event:
-    """事件对象"""
-
-    def __init__(self,event_type,data):
-        self.event_type=event_type
-        self.data = data
-
-
-class EventEngine:
-    """事件驱动引擎"""
-
+from FeedEngine import MarketEngine
+from EventEngine import *
+from ClockEngine import ClockEngine
+class XEngine:
+    """回测事件驱动引擎"""
+    feed.run_first(self.feed_list)
     def __init__(self):
         """初始化事件引擎"""
         # 事件队列
@@ -29,6 +21,13 @@ class EventEngine:
 
         # 事件字典，key 为时间， value 为对应监听事件函数的列表
         self.__handlers = defaultdict(list)
+        self.context = {}
+        self.clock = ClockEvent("clock",self.context["date"])
+
+        self.portfolio = None
+        self.MarketEngine = MarketEngine(EventEngine(),ClockEngine(EventEngine()))
+        self.strategy_list = []
+
 
     def __run(self):
         """启动引擎"""
@@ -39,7 +38,7 @@ class EventEngine:
                 #handle_thread.start()
                 self.__process(event)
             except Empty:
-                pass
+                feed.load_all_feed(self.feed_list)
 
     def __process(self, event):
         """事件处理"""
@@ -47,7 +46,7 @@ class EventEngine:
         if event.event_type in self.__handlers:
             # 若存在,则按顺序将时间传递给处理函数执行
             for handler in self.__handlers[event.event_type]:
-                handler(event)
+                handler(self,event)
 
 
 
@@ -83,26 +82,17 @@ class EventEngine:
     def queue_size(self):
         return self.queue.qsize()
 
+    def marketHander(self,event):
+        print("把市场事件放到队列中")
+        self.queue.put(event)
+        print("处理市场事件")
+        self._pass_to_market(self,event)
 
-class ClockEvent(Event):
-    def __init__(self, event_type, data):
-        super(ClockEvent, self).__init__(event_type, data)
-        self.event_type = "Clock"
+    def _pass_to_market(self, marketevent):
+        """因为Strategy模块用到的是marketevent，所以通过marketevent传进去"""
+        m = marketevent
+        m.fill = self.fill
+        self.portfolio.fill = self.fill
+        self.broker.fill = self.fill
+        m.target = self.target
 
-
-class MarketEvent(Event):
-    def __init__(self, event_type, data):
-        super(MarketEvent, self).__init__(event_type, data)
-        self.event_type = "Market"
-
-
-class StrategyEvent(Event):
-    def __init__(self, event_type, data):
-        super(StrategyEvent, self).__init__(event_type, data)
-        self.event_type = 'Strategy'
-
-
-class FillEvent(Event):
-    def __init__(self, event_type, data):
-        super(FillEvent, self).__init__(event_type, data)
-        self.event_type = 'Fill'
