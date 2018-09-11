@@ -1,5 +1,4 @@
 
-
 import pymysql
 from tools.to_mysql import *
 
@@ -34,7 +33,7 @@ To.delete("bar","2018-08-20")
 To.close()
 2014-8-29
 To=ToMysql()
-date_A=THS_DateQuery('SSE','dateType:0,period:D,dateFormat:0','2015-09-30','2015-12-31')["tables"]["time"]
+date_A=THS_DateQuery('SSE','dateType:0,period:D,dateFormat:0','2016-1-1','2016-12-31')["tables"]["time"]
 for day in date_A:
     print(day)
     A = getBar(day)

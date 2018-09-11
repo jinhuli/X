@@ -108,4 +108,6 @@ class FillEvent(Event):
         self.event_type = 'Fill'
 
 class Order():
-    def __init__(self,):
+    def __init__(self, event_type, data):
+        super(OrderEvent, self).__init__(event_type, data)
+        self.event_type = 'Fill'

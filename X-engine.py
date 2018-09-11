@@ -5,13 +5,15 @@ from threading import Thread
 from FeedEngine import MarketEngine
 from EventEngine import *
 from ClockEngine import ClockEngine
+
+
 class XEngine:
     """回测事件驱动引擎"""
-    feed.run_first(self.feed_list)
     def __init__(self):
         """初始化事件引擎"""
         # 事件队列
         self.queue = Queue()
+
 
         # 事件引擎开关
         self.__active = False
@@ -23,6 +25,8 @@ class XEngine:
         self.__handlers = defaultdict(list)
         self.context = {}
         self.clock = ClockEvent("clock",self.context["date"])
+
+        self.marketevent=MarketEvent()
 
         self.portfolio = None
         self.MarketEngine = MarketEngine(EventEngine(),ClockEngine(EventEngine()))
@@ -39,6 +43,9 @@ class XEngine:
                 self.__process(event)
             except Empty:
                 feed.load_all_feed(self.feed_list)
+                print()
+
+
 
     def __process(self, event):
         """事件处理"""
