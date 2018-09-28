@@ -34,4 +34,56 @@ if __name__ == '__main__':
     zz500.get_code_list()
     zz500.get_factor()
 
+    from docx import Document
+
+    document = Document()
+    data=zz500.get_code_list()
+    def writeTable(data):
+        a = len(data)
+        b = len(data.columns)
+        table = document.add_table(rows=1, cols=b+1)
+        hdr_cells = table.rows[0].cells
+        hdr_cells[0].text = "index"
+
+        for cols in range(b):
+            hdr_cells[cols+1].text =data.columns[i]
+
+        for i in range(a):
+            row_cells = table.add_row().cells
+            row_cells[0].text = str(data.index[i])
+            for j in range(b):
+                if type(data.iloc[i, j]) == pd.Timestamp:
+                    row_cells[j+1].text = data.iloc[i, j].strftime('%Y-%m-%d')
+                elif type(data.iloc[i, j]) == str:
+                    row_cells[j+1].text = data.iloc[i, j]
+                elif type(data.iloc[i, j]) == float:
+                    row_cells[j+1].text = str(data.iloc[i, j])
+
+                else:
+                    print("数据包含异常格式变量")
+
+        document.save('/demo1.docx')
+    writeTable(data)
+
+
+
+     s2 = pd.Series([1, 3, 5, 7, 9], index=['a', 'b', 'c', 'd', 'e'])
+     writeTable(s2)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
