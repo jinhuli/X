@@ -1,6 +1,10 @@
 from WindPy import *
 from datetime import *
 import pandas as pd
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
 w.start()
 
 
@@ -28,7 +32,7 @@ def writeTable(data,document):
             else:
                 print("数据包含异常格式变量")
 
-
+###指数每日#####
 class index(object):
     def __init__(self,tradate,indexCode = None):
         self.indexCode = indexCode
@@ -50,8 +54,30 @@ class index(object):
 
     def get_data(self):
         codelist = self.get_code_list()
+        codelist.set_index(['wind_code'], inplace = True)
+
         factor = self.get_factor()
-        pd.concat(codelist,factor)
+        self.data = pd.concat([codelist,factor], axis=1, join_axes=[factor.index])
+        return self.data
+
+    def get_indexTimeSeries(self):
+        data = w.wsd(self.indexCode,"close,pct_chg", "ED-5Y",self.tradate, "")
+        self.indextimeseries = pd.DataFrame(data.Data, columns=data.Times, index=data.Fields).T
+        nav = self.indextimeseries
+        ##plt.figure()
+        ##indextimeseries.plot()
+        ##plt.title("Simple Plot")
+        ##plt.savefig("E:\\github\\X\\1.jpg")
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -60,11 +86,14 @@ if __name__ == '__main__':
     zz500=index("2018-9-26","000905.SH")
     zz500.get_code_list()
     zz500.get_factor()
-
+    zz500.get_data()
+    zz500.get_indexTimeSeries()
+    timeseries = zz500.indextimeseries
+    timeseries["PCT_CHG_1"] = timeseries["PCT_CHG"].map(lambda x: x / 100 + 1)
     from docx import Document
 
     document = Document()
-    data=zz500.get_code_list()
+    data=zz500.get_data()
 
     writeTable(data,document)
     document.save("E:\\github\\X\\demo.docx")

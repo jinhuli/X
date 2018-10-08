@@ -11,8 +11,7 @@ from pylab import *
 mpl.rcParams['font.sans-serif'] = ['SimHei']
 plt.rcParams['axes.unicode_minus']=False #用来正常显示负号
 
-from iFinDPy import *
-thsLogin= THS_iFinDLogin("cfzq267", "592935")
+
 from visual_k import get_visual
 
 get_visual("000906.sh","2010-9-1","2014-1-1")
