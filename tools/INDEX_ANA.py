@@ -1,10 +1,7 @@
 from WindPy import *
 from datetime import *
 import pandas as pd
-import matplotlib
-matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-
 w.start()
 
 
@@ -32,19 +29,24 @@ def writeTable(data,document):
             else:
                 print("数据包含异常格式变量")
 
-###指数每日#####
+###指数截面表现#####
 class index(object):
-    def __init__(self,tradate,indexCode = None):
+    def __init__(self, tradate,indexCode ,benchmark):
         self.indexCode = indexCode
         self.tradate = tradate
+        self.benchmark = benchmark
+        self.factor = None
+        self.data = None
+        self.indextimeseries = None
         codelist = w.wset("indexconstituent", "date=" + self.tradate + ";windcode=" + self.indexCode)
         self.list = pd.DataFrame(codelist.Data, columns=codelist.Codes, index=codelist.Fields).T["wind_code"].tolist()
 
+##########获取指数成分#####
     def get_code_list(self):
         codelist = w.wset("indexconstituent","date="+self.tradate+";windcode="+self.indexCode)
         self.codelist = pd.DataFrame(codelist.Data, columns=codelist.Codes, index=codelist.Fields).T
         return self.codelist
-
+    ###获取指数截面因子#####
     def get_factor(self):
         tradedate = datetime.strptime(self.tradate, '%Y-%m-%d').strftime('%Y%m%d')
         ind="industry_sw,val_pe_deducted_ttm,mkt_cap_ard,pb_lf"
@@ -60,14 +62,19 @@ class index(object):
         self.data = pd.concat([codelist,factor], axis=1, join_axes=[factor.index])
         return self.data
 
-    def get_indexTimeSeries(self):
+    def get_indextimeseries(self):
         data = w.wsd(self.indexCode,"close,pct_chg", "ED-5Y",self.tradate, "")
         self.indextimeseries = pd.DataFrame(data.Data, columns=data.Times, index=data.Fields).T
-        nav = self.indextimeseries
-        ##plt.figure()
-        ##indextimeseries.plot()
-        ##plt.title("Simple Plot")
-        ##plt.savefig("E:\\github\\X\\1.jpg")
+        self.indextimeseries["PCT_CHG_1"] = self.indextimeseries["PCT_CHG"].map(lambda x: x / 100 + 1)
+        self.indextimeseries["nav"] = self.indextimeseries["nav"]["PCT_CHG_1"].cumprod()
+        plt.figure()
+        plt.xlabel('x轴')
+        plt.ylabel('y轴')
+        plt.title('图像名称')
+        timeseries.plot()
+
+        plt.show()
+
 
 
 
@@ -89,12 +96,12 @@ if __name__ == '__main__':
     zz500.get_data()
     zz500.get_indexTimeSeries()
     timeseries = zz500.indextimeseries
-    timeseries["PCT_CHG_1"] = timeseries["PCT_CHG"].map(lambda x: x / 100 + 1)
+
     from docx import Document
 
     document = Document()
     data=zz500.get_data()
-
+    timeseries["nav"] = timeseries["PCT_CHG_1"].cumprod()
     writeTable(data,document)
     document.save("E:\\github\\X\\demo.docx")
 
