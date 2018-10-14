@@ -52,10 +52,10 @@ class index(object):
         self.factor = None
         self.data = None
         self.indextimeseries = None
-        codelist = w.wset("indexconstituent", "date=" + self.tradate + ";windcode=" + self.indexCode)
+        codelist = w.wset('indexconstituent', "date=" + self.tradate + ";windcode=" + self.indexCode)
         self.list = pd.DataFrame(codelist.Data, columns=codelist.Codes, index=codelist.Fields,dtype=float).T["wind_code"].tolist()
 
-##########获取指数成分#####
+################################获取指数成分
     def get_code_list(self):
         codelist = w.wset("indexconstituent","date="+self.tradate+";windcode="+self.indexCode)
         self.codelist = pd.DataFrame(codelist.Data, columns=codelist.Codes, index=codelist.Fields,dtype=float).T
@@ -66,7 +66,7 @@ class index(object):
         startdate = w.tdaysoffset(-1, "2018-10-10", "Period=M").Data[0][0].strftime('%Y%m%d')
         year = datetime.strptime(self.tradate, '%Y-%m-%d').year
         ind="pct_chg_per,val_pe_deducted_ttm,pb_lyr,dividendyield2,pe_est,est_peg,BOLL,DMA,industry_sw,val_lnfloatmv,val_floatmv"
-        factor =w.wss(self.list,ind,"startDate=%s;endDate=%s;tradeDate=%s;year=%s;rptYear=%s;BOLL_N=26;BOLL_Width=2;BOLL_IO=1;priceAdj=F;cycle=D;DMA_S=10;DMA_L=50;DMA_N=10;DMA_IO=1;industryType=1" %(startdate,tradedate,tradedate,year,year))
+        factor =w.wss(self.list, ind, "startDate=%s;endDate=%s;tradeDate=%s;year=%s;rptYear=%s;BOLL_N=26;BOLL_Width=2;BOLL_IO=1;priceAdj=F;cycle=D;DMA_S=10;DMA_L=50;DMA_N=10;DMA_IO=1;industryType=1" %(startdate, tradedate, tradedate, year, year))
         self.factor = pd.DataFrame(factor.Data, columns=factor.Codes, index=factor.Fields,dtype=float).T
         return self.factor
 
@@ -124,7 +124,24 @@ if __name__ == '__main__':
     from docx.shared import Inches
     document.add_picture("E:\\github\\X\\2.jpg", width=Inches(4.0))
 
+    #####常用因子######
+
+    ##价值类##
+    ##
+    ##
+    ##
+    ##
+
+    ##量价类##
+    ##
+    ##
+    ##
+    ##
+    ##
+
     ###因子权重分析
+
+
     factor_i = ['PCT_CHG_PER', 'VAL_PE_DEDUCTED_TTM', 'PB_LYR', 'DIVIDENDYIELD2', 'PE_EST', 'EST_PEG',
                 'BOLL', 'DMA', 'VAL_LNFLOATMV', 'VAL_FLOATMV']
     data[factor_i] = data[factor_i].astype(float)
@@ -134,7 +151,10 @@ if __name__ == '__main__':
     for i in factor_i:
         data[i+"_group"] = data[i].rank(ascending=False).apply(cla, args=(100,)).values
 
-    pie_data1=data.groupby("INDUSTRY_SW")["i_weight"].sum().sort_values()
+    from pandas.plotting import scatter_matrix
+    scatter_matrix(data[['PCT_CHG_PER', 'PE_EST', 'EST_PEG', 'BOLL', 'DMA', 'VAL_LNFLOATMV']], alpha=0.2, figsize=(6, 6), diagonal='kde')
+
+    pie_data1 = data.groupby("INDUSTRY_SW")["i_weight"].sum().sort_values()
     fig1, ax1 = plt.subplots()
     ax1.pie(pie_data1,labels=pie_data1.index.tolist(),shadow=True, autopct='%1.1f%%', startangle=90)
     ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
@@ -143,7 +163,7 @@ if __name__ == '__main__':
     plt.savefig("E:\\github\\X\\1.jpg")
     document.add_picture("E:\\github\\X\\1.jpg", width=Inches(4.0))
 
-    fig, axs = plt.subplots(4, 2, figsize=(5, 5))
+    fig, axs = plt.subplots(5, 2, figsize=(5, 5))
     for i in range(len(factor_i)):
         factor=factor_i[i]
         pie_data = data.groupby(factor + "_group")["i_weight"].sum().sort_values()
@@ -188,14 +208,12 @@ if __name__ == '__main__':
     #####收益归因--分组收益统计####
     document.add_heading('指数收益归因')
 
-    document.add_heading('行业归因',level = 2)
+    document.add_heading('行业归因', level = 2)
 
-    document.add_heading('风格归因',level = 2)
+    document.add_heading('风格归因', level = 2)
 
     document.save("E:\\github\\X\\demo.docx")
 
-
-    cla(100,200)
 
 
 
