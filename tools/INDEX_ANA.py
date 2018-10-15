@@ -55,18 +55,19 @@ class index(object):
         codelist = w.wset('indexconstituent', "date=" + self.tradate + ";windcode=" + self.indexCode)
         self.list = pd.DataFrame(codelist.Data, columns=codelist.Codes, index=codelist.Fields,dtype=float).T["wind_code"].tolist()
 
-################################获取指数成分
     def get_code_list(self):
+        """获取指数成分"""
         codelist = w.wset("indexconstituent","date="+self.tradate+";windcode="+self.indexCode)
         self.codelist = pd.DataFrame(codelist.Data, columns=codelist.Codes, index=codelist.Fields,dtype=float).T
         return self.codelist
-    ###获取指数截面因子#####
+
     def get_factor(self):
+        """获取指数截面因子"""
         tradedate = datetime.strptime(self.tradate, '%Y-%m-%d').strftime('%Y%m%d')
         startdate = w.tdaysoffset(-1, "2018-10-10", "Period=M").Data[0][0].strftime('%Y%m%d')
         year = datetime.strptime(self.tradate, '%Y-%m-%d').year
-        ind="pct_chg_per,val_pe_deducted_ttm,pb_lyr,dividendyield2,pe_est,est_peg,BOLL,DMA,industry_sw,val_lnfloatmv,val_floatmv"
-        factor =w.wss(self.list, ind, "startDate=%s;endDate=%s;tradeDate=%s;year=%s;rptYear=%s;BOLL_N=26;BOLL_Width=2;BOLL_IO=1;priceAdj=F;cycle=D;DMA_S=10;DMA_L=50;DMA_N=10;DMA_IO=1;industryType=1" %(startdate, tradedate, tradedate, year, year))
+        ind='fa_roicebit_ttm,fa_ocftoor_ttm,fa_debttoasset,fa_npgr_ttm,fa_orgr_ttm,tech_price1y,pe_ttm,val_mvtoebitda_ttm,pb_lf,beta_24m,annualstdevr_24m'
+        factor =w.wss(self.list, ind, "tradeDate=%s"%(tradedate))
         self.factor = pd.DataFrame(factor.Data, columns=factor.Codes, index=factor.Fields,dtype=float).T
         return self.factor
 
@@ -127,20 +128,24 @@ if __name__ == '__main__':
     #####常用因子######
 
     ##价值类##
-    ##
-    ##
-    ##
-    ##
+    ##fa_roicebit_ttm                 投入资本回报率ROIC
+    ##fa_ocftoor_ttm                  经营活动产生的现金流量净额/营业收入
+    ##fa_debttoasset                  资产负债率
+    ##fa_npgr_ttm                     净利润增长率
+    ##fa_orgr_ttm                     营业收入增长率
+    ##pe_ttm                          市盈率
+    ##val_mvtoebitda_ttm              市值/EBITDA
+    ##pb_lf                           市净率
+
+
+    ##风险类##
+    ##beta_24m                        BETA近24个月
+    ##annualstdevr_24m                年化波动率近24个月
 
     ##量价类##
-    ##
-    ##
-    ##
-    ##
-    ##
+    ##tech_price1y                   当前股价/过去一年均价-1
 
     ###因子权重分析
-
 
     factor_i = ['PCT_CHG_PER', 'VAL_PE_DEDUCTED_TTM', 'PB_LYR', 'DIVIDENDYIELD2', 'PE_EST', 'EST_PEG',
                 'BOLL', 'DMA', 'VAL_LNFLOATMV', 'VAL_FLOATMV']
