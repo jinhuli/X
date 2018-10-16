@@ -66,8 +66,8 @@ class index(object):
         tradedate = datetime.strptime(self.tradate, '%Y-%m-%d').strftime('%Y%m%d')
         startdate = w.tdaysoffset(-1, "2018-10-10", "Period=M").Data[0][0].strftime('%Y%m%d')
         year = datetime.strptime(self.tradate, '%Y-%m-%d').year
-        ind='fa_roicebit_ttm,fa_ocftoor_ttm,fa_debttoasset,fa_npgr_ttm,fa_orgr_ttm,tech_price1y,pe_ttm,val_mvtoebitda_ttm,pb_lf,beta_24m,annualstdevr_24m'
-        factor =w.wss(self.list, ind, "tradeDate=%s"%(tradedate))
+        ind='pct_chg_per,industry_CSRC12,fa_roicebit_ttm,fa_ocftoor_ttm,fa_debttoasset,fa_npgr_ttm,fa_orgr_ttm,tech_price1y,pe_ttm,val_mvtoebitda_ttm,pb_lf,beta_24m,annualstdevr_24m'
+        factor =w.wss(self.list, ind,"startDate=%s;endDate=%s;tradeDate=%s;industryType=2"%(startdate,tradedate,tradedate))
         self.factor = pd.DataFrame(factor.Data, columns=factor.Codes, index=factor.Fields,dtype=float).T
         return self.factor
 
@@ -101,6 +101,34 @@ def visual(data,title, x=None, y=None):
     ax.plot(x, y)
     plt.show()
 
+def replace1(x,mean,std):
+    if x == None:
+        x= None
+    elif x > mean+3*std:
+        x= mean+3*std
+    elif x <=mean+3*std and x >=mean-3*std:
+        x=x
+    else:
+        x=mean-3*std
+    return x
+
+
+def DataCleaning(data,cloumn,model):
+    """1:正态分布变量"""
+    if model ==1:
+        data[cloumn] = data[cloumn].map(
+            lambda x: replace1(x, data[cloumn].mean(), data[cloumn].std()))
+    if model == 2:
+        data[cloumn] = data[cloumn].map(
+            lambda x: replace1(x, data[cloumn].mean(), data[cloumn].std()))
+
+
+
+
+
+
+
+
 
 
 
@@ -109,7 +137,6 @@ if __name__ == '__main__':
     zz500=index("2018-9-26", "000905.SH", "000905.SH")
     zz500.get_code_list()
     zz500.get_factor()
-    zz500.get_data()
     zz500.get_indextimeseries()
     timeseries = zz500.indextimeseries
     data = zz500.get_data()
@@ -146,20 +173,47 @@ if __name__ == '__main__':
     ##tech_price1y                   当前股价/过去一年均价-1
 
     ###因子权重分析
+    factor = ['i_weight', 'PCT_CHG_PER','FA_ROICEBIT_TTM', 'FA_OCFTOOR_TTM', 'FA_DEBTTOASSET', 'FA_NPGR_TTM','FA_ORGR_TTM', 'TECH_PRICE1Y', 'PE_TTM', 'VAL_MVTOEBITDA_TTM', 'PB_LF','BETA_24M', 'ANNUALSTDEVR_24M']
+    factor_i = ['FA_DEBTTOASSET', 'PE_TTM', 'VAL_MVTOEBITDA_TTM', 'PB_LF','BETA_24M', 'ANNUALSTDEVR_24M']
+    factor_d = ['i_weight', 'PCT_CHG_PER','FA_ROICEBIT_TTM', 'FA_OCFTOOR_TTM','FA_NPGR_TTM','FA_ORGR_TTM', 'TECH_PRICE1Y']
+    data[factor] = data[factor].astype(float)
 
-    factor_i = ['PCT_CHG_PER', 'VAL_PE_DEDUCTED_TTM', 'PB_LYR', 'DIVIDENDYIELD2', 'PE_EST', 'EST_PEG',
-                'BOLL', 'DMA', 'VAL_LNFLOATMV', 'VAL_FLOATMV']
-    data[factor_i] = data[factor_i].astype(float)
-    factor_d = []
+    ##数据清洗
+    ##缺失值分析
+    data.dropna()
+    data.isna()
+    data["FA_ROICEBIT_TTM"].plot.box()
+
+
+    plt.show()
+    mean = data["FA_ROICEBIT_TTM"].mean()
+    std = data["FA_ROICEBIT_TTM"].std()
+
+    def replace(x,mean,std):
+        if x == None:
+            x= None
+        elif x > mean+3*std:
+            x= mean+3*std
+        elif x <=mean+3*std and x >=mean-3*std:
+            x=x
+        else:
+            x=mean-3*std
+        return x
+
+    data["FA_ROICEBIT_TTM"] = data["FA_ROICEBIT_TTM"].map(lambda x :replace(x,data["FA_ROICEBIT_TTM"].mean(),data["FA_ROICEBIT_TTM"].std()))
+
     document.add_heading('因子权重分析')
       ###因子分组均分成5组
     for i in factor_i:
-        data[i+"_group"] = data[i].rank(ascending=False).apply(cla, args=(100,)).values
+        data[i+"_group"] = data[i].rank(ascending=False).apply(cla, args=(100,)).values  #降序
+
+    for i in factor_d:
+        data[i+"_group"] = data[i].rank(ascending=True).apply(cla, args=(100,)).values  #升序
 
     from pandas.plotting import scatter_matrix
-    scatter_matrix(data[['PCT_CHG_PER', 'PE_EST', 'EST_PEG', 'BOLL', 'DMA', 'VAL_LNFLOATMV']], alpha=0.2, figsize=(6, 6), diagonal='kde')
+    scatter_matrix(data[factor_d], alpha=0.2, figsize=(6, 6), diagonal='kde')
 
-    pie_data1 = data.groupby("INDUSTRY_SW")["i_weight"].sum().sort_values()
+    pie_data1 = data.groupby("INDUSTRY_CSRC12")["i_weight"].sum().sort_values()
     fig1, ax1 = plt.subplots()
     ax1.pie(pie_data1,labels=pie_data1.index.tolist(),shadow=True, autopct='%1.1f%%', startangle=90)
     ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
