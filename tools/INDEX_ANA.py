@@ -105,22 +105,22 @@ def replace1(x,mean,std):
     if x == None:
         x= None
     elif x > mean+3*std:
-        x= mean+3*std
+        x= None
     elif x <=mean+3*std and x >=mean-3*std:
         x=x
     else:
-        x=mean-3*std
+        x=None
     return x
 
 def replace2(x,mean,std):
     if x == None:
         x= None
     elif x > mean+3*std:
-        x= mean+3*std
+        x= None
     elif x <=mean+3*std and x >0:
         x=x
     else:
-        x=mean-3*std
+        x=None
     return x
 
 def DataCleaning(data,cloumn,model):
@@ -151,6 +151,7 @@ if __name__ == '__main__':
     timeseries = zz500.indextimeseries
     data = zz500.get_data()
     data.to_csv("E:\\github\\X\\data.csv",encoding="gbk")
+    data= pd.read_csv("E:\\github\\X\\data.csv",encoding="gbk", na_values=["None"])
     ##净值走势图
     aa=plt.figure()
     timeseries["nav"].plot()
@@ -186,51 +187,34 @@ if __name__ == '__main__':
     ###因子权重分析
     factor = ['i_weight', 'PCT_CHG_PER','FA_ROICEBIT_TTM', 'FA_OCFTOOR_TTM', 'FA_DEBTTOASSET', 'FA_NPGR_TTM','FA_ORGR_TTM', 'TECH_PRICE1Y', 'PE_TTM', 'VAL_MVTOEBITDA_TTM', 'PB_LF','BETA_24M', 'ANNUALSTDEVR_24M']
     factor_i = ['FA_DEBTTOASSET', 'PE_TTM', 'VAL_MVTOEBITDA_TTM', 'PB_LF','BETA_24M', 'ANNUALSTDEVR_24M']
-    factor_d = ['i_weight', 'PCT_CHG_PER','FA_ROICEBIT_TTM', 'FA_OCFTOOR_TTM','FA_NPGR_TTM','FA_ORGR_TTM', 'TECH_PRICE1Y']
+    factor_d = ['i_weight', 'PCT_CHG_PER','FA_ROICEBIT_TTM', 'FA_OCFTOOR_TTM','FA_NPGR_TTM','FA_ORGR_TTM', 'TECH_PRICE1Y','EP_TTM','BP_LF','EBITDAVAL_MVTO']
     data[factor] = data[factor].astype(float)
-    ###数据变换
-    data['PE_TTM'] = data['PE_TTM'].map(lambda x: 1/x if x else None)
-    data['VAL_MVTOEBITDA_TTM'].map(lambda x: 1/x if x else None).to_csv("E:\\github\\X\\data2.csv",encoding="gbk")
-def ww(x):
-    if x:
-        y=1/x
-    else:
-        y=None
-    return y
-
-
+    ###估值数据数据变换
+    data['EP_TTM'] = data['PE_TTM'].map(lambda x: 1/x if x else None)
+    data[ 'BP_LF'] = data[ 'PB_LF'].map(lambda x: 1/x if x else None)
+    data[ 'EBITDAVAL_MVTO'] = data[ 'VAL_MVTOEBITDA_TTM'].map(lambda x: 1/x if x else None)
 
     ##数据清洗
+    factor_a = ['FA_ROICEBIT_TTM', 'FA_OCFTOOR_TTM', 'FA_DEBTTOASSET', 'FA_NPGR_TTM','FA_ORGR_TTM', 'EP_TTM','BP_LF','EBITDAVAL_MVTO']
+    for i in factor_a:
+        DataCleaning(data,i, 1)
+
     ##缺失值分析
-    data.dropna()
-    data.isna()
-    data["FA_ROICEBIT_TTM"].plot.box()
+    data = data.dropna()
 
 
-    plt.show()
-    mean = data["FA_ROICEBIT_TTM"].mean()
-    std = data["FA_ROICEBIT_TTM"].std()
+    ##数据标准化
 
-    def replace(x,mean,std):
-        if x == None:
-            x= None
-        elif x > mean+3*std:
-            x= mean+3*std
-        elif x <=mean+3*std and x >=mean-3*std:
-            x=x
-        else:
-            x=mean-3*std
-        return x
 
-    data["FA_ROICEBIT_TTM"] = data["FA_ROICEBIT_TTM"].map(lambda x :replace(x,data["FA_ROICEBIT_TTM"].mean(),data["FA_ROICEBIT_TTM"].std()))
+
 
     document.add_heading('因子权重分析')
       ###因子分组均分成5组
-    for i in factor_i:
-        data[i+"_group"] = data[i].rank(ascending=False).apply(cla, args=(100,)).values  #降序
-
     for i in factor_d:
-        data[i+"_group"] = data[i].rank(ascending=True).apply(cla, args=(100,)).values  #升序
+        data[i+"_group"] = data[i].rank(ascending=False).apply(cla, args=(50,)).values  #降序
+
+    for i in factor_i:
+        data[i+"_group"] = data[i].rank(ascending=True).apply(cla, args=(50,)).values  #升序
 
     from pandas.plotting import scatter_matrix
     scatter_matrix(data[factor_d], alpha=0.2, figsize=(6, 6), diagonal='kde')
@@ -244,7 +228,7 @@ def ww(x):
     plt.savefig("E:\\github\\X\\1.jpg")
     document.add_picture("E:\\github\\X\\1.jpg", width=Inches(4.0))
 
-    fig, axs = plt.subplots(5, 2, figsize=(5, 5))
+    fig, axs = plt.subplots(3, 2, figsize=(5, 5))
     for i in range(len(factor_i)):
         factor=factor_i[i]
         pie_data = data.groupby(factor + "_group")["i_weight"].sum().sort_values()
@@ -254,7 +238,21 @@ def ww(x):
         axs[a, b].set_title(factor)
     plt.show()
 
+    fig, axs = plt.subplots()
+    axs.scatter(data['EP_TTM'],data['i_weight'])
 
+vegetables = data[factor_d].corr().round(2)
+fig, ax = plt.subplots()
+im = ax.imshow(vegetables)
+plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
+         rotation_mode="anchor")
+
+for i in range(len(vegetables)):
+    for j in range(len(vegetables)):
+        text = ax.text(j, i, vegetables.iloc[i, j],
+                       ha="center", va="center", color="w")
+fig.tight_layout()
+plt.show()
 
 
 
