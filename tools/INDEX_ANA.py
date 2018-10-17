@@ -67,7 +67,7 @@ class index(object):
         startdate = w.tdaysoffset(-1, "2018-10-10", "Period=M").Data[0][0].strftime('%Y%m%d')
         year = datetime.strptime(self.tradate, '%Y-%m-%d').year
         ind='pct_chg_per,industry_CSRC12,fa_roicebit_ttm,fa_ocftoor_ttm,fa_debttoasset,fa_npgr_ttm,fa_orgr_ttm,tech_price1y,pe_ttm,val_mvtoebitda_ttm,pb_lf,beta_24m,annualstdevr_24m'
-        factor =w.wss(self.list, ind,"startDate=%s;endDate=%s;tradeDate=%s;industryType=2"%(startdate,tradedate,tradedate))
+        factor =w.wss(self.list, ind,"startDate=%s;endDate=%s;tradeDate=%s;industryType=3"%(startdate,tradedate,tradedate))
         self.factor = pd.DataFrame(factor.Data, columns=factor.Codes, index=factor.Fields,dtype=float).T
         return self.factor
 
@@ -150,6 +150,7 @@ if __name__ == '__main__':
     zz500.get_indextimeseries()
     timeseries = zz500.indextimeseries
     data = zz500.get_data()
+    data.to_csv("E:\\github\\X\\data.csv",encoding="gbk")
     ##净值走势图
     aa=plt.figure()
     timeseries["nav"].plot()
@@ -187,6 +188,17 @@ if __name__ == '__main__':
     factor_i = ['FA_DEBTTOASSET', 'PE_TTM', 'VAL_MVTOEBITDA_TTM', 'PB_LF','BETA_24M', 'ANNUALSTDEVR_24M']
     factor_d = ['i_weight', 'PCT_CHG_PER','FA_ROICEBIT_TTM', 'FA_OCFTOOR_TTM','FA_NPGR_TTM','FA_ORGR_TTM', 'TECH_PRICE1Y']
     data[factor] = data[factor].astype(float)
+    ###数据变换
+    data['PE_TTM'] = data['PE_TTM'].map(lambda x: 1/x if x else None)
+    data['VAL_MVTOEBITDA_TTM'].map(lambda x: 1/x if x else None).to_csv("E:\\github\\X\\data2.csv",encoding="gbk")
+def ww(x):
+    if x:
+        y=1/x
+    else:
+        y=None
+    return y
+
+
 
     ##数据清洗
     ##缺失值分析
