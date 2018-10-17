@@ -1,80 +1,71 @@
-# -*- coding: utf-8 -*-
-
-"""
-PyQt5 tutorial
-
-In this example, we create three toggle buttons.
-They will control the background color of a
-QFrame.
-
-author: py40.com
-last edited: 2017年3月
-"""
+# code:utf-8
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 import sys
-from PyQt5.QtWidgets import (QWidget, QPushButton,
-                             QFrame, QApplication)
-from PyQt5.QtGui import QColor
+import time
 
 
-class Example(QWidget):
+class MyTable(QTableWidget):
+    def __init__(self, parent=None):
+        super(MyTable, self).__init__(parent)
+        self.setWindowTitle("各个市场比特币实时行情")  # 设置表格名称
+        self.setWindowIcon(QIcon("ok.png"))  # 设置图标（图片要存在）
+        self.resize(600, 200)  # 设置表格尺寸（整体大小）
+        self.setColumnCount(5)  # 设置列数
+        self.setRowCount(5)  # 设置行数
+        # self.setColumnWidth(0, 200)  # 设置列宽(第几列， 宽度)
+        # self.setRowHeight(0, 100)  # 设置行高(第几行， 行高)
 
-    def __init__(self):
-        super().__init__()
+        column_name = [
+            'ETH/BIC',
+            'column1',
+            'column2',
+            'column3',
+            'column4',
+        ]
+        self.setHorizontalHeaderLabels(column_name)  # 设置列名称
+        row_name = [
+            'binance',
+            'okex',
+            'bitfinex',
+            'bittrex',
+            'bithumb',
+        ]
+        self.setVerticalHeaderLabels(row_name)  # 设置行名称
 
-        self.initUI()
+    def update_item_data(self, data):
+        """更新内容"""
+        self.setItem(0, 0, QTableWidgetItem(data))  # 设置表格内容(行， 列) 文字
 
-    def initUI(self):
 
-        self.col = QColor(0, 0, 0)
+class UpdateData(QThread):
+    """更新数据类"""
+    update_date = pyqtSignal(str)  # pyqt5 支持python3的str，没有Qstring
 
-        redb = QPushButton('Red', self)
-        redb.setCheckable(True)
-        redb.move(10, 10)
-
-        redb.clicked[bool].connect(self.setColor)
-
-        greenb = QPushButton('Green', self)
-        greenb.setCheckable(True)
-        greenb.move(10, 60)
-
-        greenb.clicked[bool].connect(self.setColor)
-
-        blueb = QPushButton('Blue', self)
-        blueb.setCheckable(True)
-        blueb.move(10, 110)
-
-        blueb.clicked[bool].connect(self.setColor)
-
-        self.square = QFrame(self)
-        self.square.setGeometry(150, 20, 100, 100)
-        self.square.setStyleSheet("QWidget { background-color: %s }" %
-                                  self.col.name())
-
-        self.setGeometry(300, 300, 280, 170)
-        self.setWindowTitle('Toggle button')
-        self.show()
-
-    def setColor(self, pressed):
-
-        source = self.sender()
-
-        if pressed:
-            val = 255
-        else:
-            val = 0
-
-        if source.text() == "Red":
-            self.col.setRed(val)
-        elif source.text() == "Green":
-            self.col.setGreen(val)
-        else:
-            self.col.setBlue(val)
-
-        self.square.setStyleSheet("QFrame { background-color: %s }" %
-                                  self.col.name())
+    def run(self):
+        cnt = 0
+        while True:
+            cnt += 1
+            self.update_date.emit(str(cnt))  # 发射信号
+            time.sleep(1)
 
 
 if __name__ == '__main__':
+    # 实例化表格
     app = QApplication(sys.argv)
-    ex = Example()
-    sys.exit(app.exec_())
+    myTable = MyTable()
+    # 启动更新线程
+    update_data_thread = UpdateData()
+    update_data_thread.update_date.connect(myTable.update_item_data)  # 链接信号
+    update_data_thread.start()
+
+    # 显示在屏幕中央
+    desktop = QApplication.desktop()  # 获取坐标
+    x = (desktop.width() - myTable.width()) // 2
+    y = (desktop.height() - myTable.height()) // 2
+    myTable.move(x, y)  # 移动
+
+    # 显示表格
+    myTable.show()
+    app.exit(app.exec_())

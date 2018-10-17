@@ -112,15 +112,25 @@ def replace1(x,mean,std):
         x=mean-3*std
     return x
 
+def replace2(x,mean,std):
+    if x == None:
+        x= None
+    elif x > mean+3*std:
+        x= mean+3*std
+    elif x <=mean+3*std and x >0:
+        x=x
+    else:
+        x=mean-3*std
+    return x
 
 def DataCleaning(data,cloumn,model):
-    """1:正态分布变量"""
+    """1:正态分布变量，2左边截＞0，右边3西格玛"""
     if model ==1:
         data[cloumn] = data[cloumn].map(
             lambda x: replace1(x, data[cloumn].mean(), data[cloumn].std()))
     if model == 2:
         data[cloumn] = data[cloumn].map(
-            lambda x: replace1(x, data[cloumn].mean(), data[cloumn].std()))
+            lambda x: replace2(x, data[cloumn].mean(), data[cloumn].std()))
 
 
 
