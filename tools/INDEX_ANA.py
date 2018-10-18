@@ -127,10 +127,10 @@ def DataCleaning(data,cloumn,model):
     """1:正态分布变量，2左边截＞0，右边3西格玛"""
     if model ==1:
         data[cloumn] = data[cloumn].map(
-            lambda x: replace1(x, data[cloumn].mean(), data[cloumn].std()))
+            lambda x: replace1(x, data[cloumn].median(), data[cloumn].std()))
     if model == 2:
         data[cloumn] = data[cloumn].map(
-            lambda x: replace2(x, data[cloumn].mean(), data[cloumn].std()))
+            lambda x: replace2(x, data[cloumn].median(), data[cloumn].std()))
 
 
 
@@ -150,12 +150,25 @@ if __name__ == '__main__':
     zz500.get_indextimeseries()
     timeseries = zz500.indextimeseries
     data = zz500.get_data()
-    data.to_csv("E:\\github\\X\\data.csv",encoding="gbk")
+    ##data.to_csv("E:\\github\\X\\data.csv",encoding="gbk")
     data= pd.read_csv("E:\\github\\X\\data.csv",encoding="gbk", na_values=["None"])
     ##净值走势图
     aa=plt.figure()
     timeseries["nav"].plot()
     plt.savefig("E:\\github\\X\\2.jpg")
+
+    ##PE分位数
+    pe =w.wses("a001030208000000", "sec_pettm_media_chn", "2007-01-19", "2018-10-17", "excludeRule=2;Period=W;DynamicTime=0").Data[0]
+    pe_l = []
+    for i in range(len(pe)-1):
+        i=i+1
+        re = sum(pd.Series(pe[0:i]).map(lambda x: 1 if x < pe[0:i][-1] else 0))/len(pe[0:i])
+        pe_l.append(re)
+
+    fig, axs = plt.subplots()
+    axs.plot(pe_l)
+
+
 
     document = Document()  #创建文档类
     document.add_heading("中证500指数分析", 0)
@@ -163,7 +176,6 @@ if __name__ == '__main__':
     document.add_heading('净值走势')
     from docx.shared import Inches
     document.add_picture("E:\\github\\X\\2.jpg", width=Inches(4.0))
-
     #####常用因子######
 
     ##价值类##
@@ -193,7 +205,12 @@ if __name__ == '__main__':
     data['EP_TTM'] = data['PE_TTM'].map(lambda x: 1/x if x else None)
     data[ 'BP_LF'] = data[ 'PB_LF'].map(lambda x: 1/x if x else None)
     data[ 'EBITDAVAL_MVTO'] = data[ 'VAL_MVTOEBITDA_TTM'].map(lambda x: 1/x if x else None)
+    data.eval('equit_return = EP_TTM*PB_LF')
+    data.apply(lambda x:x)
 
+    jsyh = w.wsd("601939.SH", "close,pe_est_ftm,pb_lf,risk_variance20", "2007-10-01", "2018-10-17", "PriceAdj=F")
+    jsyh2 = pd.DataFrame(jsyh.Data, columns=jsyh.Times, index=jsyh.Fields).T
+    jsyh2["equit"] = jsyh2.apply(lambda x: 1/x.PE_EST_FTM*x.PB_LF,axis=1)
     ##数据清洗
     factor_a = ['FA_ROICEBIT_TTM', 'FA_OCFTOOR_TTM', 'FA_DEBTTOASSET', 'FA_NPGR_TTM','FA_ORGR_TTM', 'EP_TTM','BP_LF','EBITDAVAL_MVTO']
     for i in factor_a:
@@ -201,7 +218,7 @@ if __name__ == '__main__':
 
     ##缺失值分析
     data = data.dropna()
-
+    data[ 'FA_OCFTOOR_TTM'].plot.box()
 
     ##数据标准化
 
@@ -240,7 +257,7 @@ if __name__ == '__main__':
 
     fig, axs = plt.subplots()
     axs.scatter(data['EP_TTM'],data['i_weight'])
-
+##热力图
 vegetables = data[factor_d].corr().round(2)
 fig, ax = plt.subplots()
 im = ax.imshow(vegetables)
