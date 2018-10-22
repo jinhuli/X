@@ -196,6 +196,7 @@ if __name__ == '__main__':
     ##量价类##
     ##tech_price1y                   当前股价/过去一年均价-1
 
+
     ###因子权重分析
     factor = ['i_weight', 'PCT_CHG_PER','FA_ROICEBIT_TTM', 'FA_OCFTOOR_TTM', 'FA_DEBTTOASSET', 'FA_NPGR_TTM','FA_ORGR_TTM', 'TECH_PRICE1Y', 'PE_TTM', 'VAL_MVTOEBITDA_TTM', 'PB_LF','BETA_24M', 'ANNUALSTDEVR_24M']
     factor_i = ['FA_DEBTTOASSET', 'PE_TTM', 'VAL_MVTOEBITDA_TTM', 'PB_LF','BETA_24M', 'ANNUALSTDEVR_24M']
