@@ -1,0 +1,82 @@
+
+<link href="css_donet/toplogin.css"   rel="stylesheet"/>
+<script> {parent.location.reload(true);}</script> 
+
+<script language="javascript">
+function conff(){
+	if(confirm('确定要退出吗？')){
+		window.location.href="toplogin.asp?typ=loginout";
+	}	
+}
+
+
+
+
+function SetHome(obj, url) {
+        try {
+            obj.style.behavior = 'url(#default#homepage)';
+            obj.setHomePage(url);
+        } catch (e) {
+            if (window.netscape) {
+                try {
+                    netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+                } catch (e) {
+                    alert("抱歉，此操作被浏览器拒绝！\n\n请在浏览器地址栏输入\"about:config\"并回车然后将[signed.applets.codebase_principal_support]设置为'true'");
+                }
+            } else {
+                alert("抱歉，您所使用的浏览器无法完成此操作。\n\n您需要手动将【" + url + "】设置为首页。");
+            }
+        }
+
+
+    }
+
+    //收藏本站 bbs.ecmoban.com
+function AddFavorite(title, url) {
+		
+		
+        try {
+            window.external.addFavorite(url, title);
+        }
+        catch (e) {
+            try {
+                window.sidebar.addPanel(title, url, "");
+            }
+            catch (e) {
+                alert("抱歉，您所使用的浏览器无法完成此操作。\n\n加入收藏失败，请使用Ctrl+D进行添加");
+            }
+        }
+    }
+
+</script>
+
+
+<div class="top" id="top01">
+
+<div class="top_main">
+  
+    <div class="top_content">
+      <div class="user"> <span class="time" style="padding-right:35px;"><script type="text/javascript" src="JS/time.js"></script> 
+        </span> <span class="username"> xuzhipeng8</span>您好！&nbsp;&nbsp;&nbsp;&nbsp;您的身份：<span class="sf"><span style='color:#d7101d;font-weight:bolder'>普通用户</span>&nbsp;&nbsp;&nbsp;</span>
+        <a href="mycenter/register.html?action=basinfo" target="_blank">修改个人资料</a>|<a  href="mycenter/register.html" target="_blank"   >用户中心</a>|<a href="#" onclick="conff()">退出登录</a> </div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+if (screen.width <=1024) 
+ {
+	document.getElementById("top01").style.width="1000px";
+ }
+ 
+</script>
+
+  <!--<div class="top_right02"> <a href="#"   onclick="this.style.behavior='url(#default#homepage)';this.setHomePage('http://www.hibor.com.cn');return false">设为首页</a>| <a href="javascript:void(0);" onClick="window.external.AddFavorite(parent.location.href,parent.document.title);return false">加入收藏</a>|<a href="suggestions.asp"  target="_blank">意见反馈</a> </div>--> 
+  
+  
+        <!--<a href="mycenter/register.asp?action=basinfo" target="_blank">修改个人资料</a>|<a  href="mycenter/register.asp?action=basinfo&rr=t&type=email1&duname=xuzhipeng8" target="_blank"   >用户中心</a>|<a href="#" onclick="conff()">退出登录</a>
+        <a href="mycenter/register.asp?action=basinfo" target="_blank">修改个人资料</a>|<a  href="mycenter/register.asp" target="_blank"   >用户中心</a>|<a href="#" onclick="conff()">退出登录</a> </div>
+      
+      <!-- <div class="top_right"> <a href="javascript:void(0);" onclick="SetHome(this,'http://www.hibor.com.cn');">设为首页</a>| <a href="javascript:void(0);" onclick="AddFavorite('慧博资讯',parent.location.href)">加入收藏</a>|<a href="suggestions.asp"  target="_blank">意见反馈</a></div>--> 
+
