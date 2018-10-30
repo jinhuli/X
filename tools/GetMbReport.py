@@ -2,14 +2,49 @@
 import queue
 import threading
 import urllib.request
+import urllib.parse
 import http.cookiejar
+
+
 import time
 import re
 from bs4 import *
-import urllib.parse
-pages = queue.Queue()
 
+pages = queue.Queue()
+writeindex = open('pagesErro.html', 'wb')
+writeindex.write(data)
+writeindex.close()
+dlurl = 'http://www.hibor.com.cn/toplogin.asp?action=login'
 url = 'http://www.hibor.com.cn/result.asp?lm=0&area=DocTitle&timess=13&key=&dtype=&page=1'
+
+
+def hibor():
+    dlurl =  'http://www.hibor.com.cn/toplogin.asp?action=login'
+    url = 'http://www.hibor.com.cn/result.asp?lm=0&area=DocTitle&timess=13&key=&dtype=&page=1'
+
+    datapost = {"name":"xuzhipeng8","pwd":'xuzhipeng8261426','tijiao.x':'12','tijiao.y':'2','checkbox': 'on'}
+    header = ["User-Agent",'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36']
+    postdata = urllib.parse.urlencode(datapost).encode("utf-8")
+    req = urllib.request.Request(dlurl, postdata)
+    req.add_header(header[0],header[1])
+    cjar = http.cookiejar.CookieJar()
+    opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cjar))
+    urllib.request.install_opener(opener)
+    file =opener.open(req)
+    data = file.read()
+
+
+    writeindex = open('page.html', 'wb')
+    writeindex.write(data)
+    writeindex.close()
+
+    data2 = urllib.request.urlopen(url).read().decode("utf-8")
+    writeindex2 = open('page2.html', 'wb')
+    writeindex2.write(data2)
+    writeindex2.close()
+
+
+
 class ThreadUrl(threading.Thread):
     def __init__(self, pages):
         threading.Thread.__init__(self)
@@ -17,11 +52,17 @@ class ThreadUrl(threading.Thread):
                                   ,use_unicode=True, charset="utf8")
         self.cursor =self.conn.cursor()
         self.pages = pages
-        self.headers=["User-Agent","Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36"]
-        self.postdata = urllib.parse.urlencode({"username":"xuzhipeng8","password":"xuzhipeng8261426"}).encode("utf-8")
+        self.headers=['Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36']
+        self.postdata = urllib.parse.urlencode({"changeno":"1","namelogin":"xuzhipeng8","pwdlogin":"xuzhipeng8261426","checkboxlogin":"on","button":"%B5%C7++%C2%BC"}).encode("utf-8")
         req = urllib.request.Request(url,self.postdata)
         req.add_header(self.headers[0],self.headers[1])
-        data = urllib.request.urlopen(req).read()
+        cjar =http.cookiejar.CookieJar()
+        #使用 创建cookie处理器，并以其为参数构建opener对象
+        opener =urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cjar))
+        urllib.request.install_opener(req)
+        file = opener.open(req)
+        data = file.read()
+
     def run(self):
 
         while True:
