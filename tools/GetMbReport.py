@@ -4,18 +4,22 @@ import threading
 import urllib.request
 import urllib.parse
 import http.cookiejar
-
+import re
 
 import time
 import re
 from bs4 import *
 
 pages = queue.Queue()
-writeindex = open('pagesErro.html', 'wb')
-writeindex.write(data)
-writeindex.close()
+
 dlurl = 'http://www.hibor.com.cn/toplogin.asp?action=login'
 url = 'http://www.hibor.com.cn/result.asp?lm=0&area=DocTitle&timess=13&key=&dtype=&page=1'
+headers  = {
+'Connection':' keep-alive',
+'Upgrade-Insecure-Requests':' 1',
+'User-Agent':' Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.84 Safari/537.36',
+}
+
 
 
 def hibor():
@@ -23,10 +27,8 @@ def hibor():
     url = 'http://www.hibor.com.cn/result.asp?lm=0&area=DocTitle&timess=13&key=&dtype=&page=1'
 
     datapost = {"name":"xuzhipeng8","pwd":'xuzhipeng8261426','tijiao.x':'12','tijiao.y':'2','checkbox': 'on'}
-    header = ["User-Agent",'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36']
     postdata = urllib.parse.urlencode(datapost).encode("utf-8")
-    req = urllib.request.Request(dlurl, postdata)
-    req.add_header(header[0],header[1])
+    req = urllib.request.Request(dlurl,postdata, headers=headers)
     cjar = http.cookiejar.CookieJar()
     opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cjar))
     urllib.request.install_opener(opener)
@@ -37,11 +39,28 @@ def hibor():
     writeindex = open('page.html', 'wb')
     writeindex.write(data)
     writeindex.close()
+    get_request = urllib.request.Request(url,headers = headers)
+    data2 = opener.open(get_request).read()
 
-    data2 = urllib.request.urlopen(url).read().decode("utf-8")
-    writeindex2 = open('page2.html', 'wb')
+    writeindex2 = open('page3.html', 'wb')
     writeindex2.write(data2)
     writeindex2.close()
+
+    soup =  BeautifulSoup(data2, "html5lib")
+    soup1 = soup.find('div', {"class": "classbaogao_sousuonew"})
+    soup2 = soup1.findAll('div', {"class": "classbaogao_sousuo_new_result"})
+    outdatalist = []
+    for i in range(len(soup2)):
+        outdata =[]
+        outdata[1] = soup2[i].find_all("span")[1].text
+        outdata[2] =  soup2[i].find_all("span")[3].text
+        outdata[3] = soup2[i].find_all("span")[5].text
+        outdata[4] = soup2[i].find_all("span")[6].text
+        outdata[5] = soup2[i].find_all("span")[7].text
+        outdata[6] = soup2[i].find_all("span")[8].text
+
+
+
 
 
 
@@ -84,7 +103,7 @@ class ThreadUrl(threading.Thread):
                 print('souping+' + page + '\n')
 
                 soup = BeautifulSoup(chunk)
-                soup1 = soup.find('div', {"class": "baogaonews"})
+                soup1 = soup.find('div', {"class": "classbaogao_sousuonew"})
                 chunks = soup1.findAll('td')
                 stockName = chunks[1].find('b').string  # ¹ÉÆ±Ãû³Æ
                 if stockName == None:
