@@ -60,14 +60,17 @@ class dateMon(Base):
     def __repr__(self):
         return "<User(name='%s')>" % (self.date)
 
+class report(Base):
+    __tablename__ = 'report'
+    __table_args__ = {
+        "mysql_charset": "utf8"
+    }
 
-ed_user = Factor(name='ed', fullname='Ed Jones', password='edspassword')
-factor = Factor()
-con =  MySQLAlchemy(dateMon,"test")
-from WindPy import *
-w.start()
-date = w.tdays("2007-01-01", "2018-10-26", "Period=M").Data[0]
-ed = dateMon(id=date[0],date=date[0])
-
-date_list = [dateMon(id=i,date=i) for i in date]
-con.insert(date_list)
+    id = Column(Integer, primary_key=True,autoincrement=True)
+    name = Column(String(50))
+    title = Column(String(200))
+    date = Column(String(50))
+    classes = Column(String(50))
+    author = Column(String(50))
+    score = Column(String(50))
+    pages = Column(Integer)
