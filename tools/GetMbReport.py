@@ -47,24 +47,21 @@ def hibor(url):
     soup =  BeautifulSoup(data2, "html5lib")
     soup1 = soup.find('div',{"class": "index_docmain"})
     soup2 = soup1.findAll('div', {"class": "classbaogao_sousuo_new_result"})
-    outdatalist = []
 
+    pddata = pd.DataFrame([], columns=["券商", "标题", "日期", "类别", "作者", "评级", "页数"])
     for i in range(len(soup2)):
-        print(i)
-        outdata =[]
+        if len(soup2[i].find_all("span"))<8:
+            pass
+        else:
+            pddata.loc[i] = [
+            soup2[i].find_all("span")[1].text[0:4],
+            soup2[i].find_all("span")[1].text[5:],
+            soup2[i].find_all("span")[3].text,
+            soup2[i].find_all("span")[5].text[3:],
+            soup2[i].find_all("span")[6].text[3:],
+            soup2[i].find_all("span")[7].text[3:],
+            soup2[i].find_all("span")[8].text[3:]]
 
-        outdata.append(soup2[i].find_all("span")[1].text[0:4])
-        outdata.append(soup2[i].find_all("span")[1].text[5:])
-
-        outdata.append(soup2[i].find_all("span")[3].text)
-        outdata.append(soup2[i].find_all("span")[5].text[3:])
-        outdata.append(soup2[i].find_all("span")[6].text[3:])
-        outdata.append(soup2[i].find_all("span")[7].text[3:])
-        outdata.append(soup2[i].find_all("span")[8].text[3:])
-
-        outdatalist.append(outdata)
-
-     pddata = pd.DataFrame(outdatalist , columns= ["券商","标题","日期","类别","作者","评级","页数"])
     return pddata
 
 
@@ -102,45 +99,20 @@ class ThreadUrl(object):
             soup = BeautifulSoup(data2, "html5lib")
             soup1 = soup.find('div', {"class": "index_docmain"})
             soup2 = soup1.findAll('div', {"class": "classbaogao_sousuo_new_result"})
-            outdatalist = []
+
+            pddata = pd.DataFrame([], columns=["券商", "标题", "日期", "类别", "作者", "评级", "页数"])
             for i in range(len(soup2)):
-                outdata = []
-                try:
-                    outdata.append(soup2[i].find_all("span")[1].text[0:4])
-                except:
-                    outdata.append(0)
-
-                try:
-                    outdata.append(soup2[i].find_all("span")[1].text[5:])
-                except:
-                    outdata.append(0)
-
-                try:
-                    outdata.append(soup2[i].find_all("span")[3].text)
-                except:
-                    outdata.append(0)
-
-                try:
-                    outdata.append(soup2[i].find_all("span")[5].text[3:])
-                except:
-                    outdata.append(0)
-
-                try:
-                    outdata.append(soup2[i].find_all("span")[6].text[3:])
-                except:
-                    outdata.append(0)
-
-                try:
-                    outdata.append(soup2[i].find_all("span")[7].text[3:])
-                except:
-                    outdata.append(0)
-
-                try:
-                    outdata.append(soup2[i].find_all("span")[8].text[3:])
-                except:
-                    outdata.append(0)
-
-                 outdatalist.append(outdata)
+                if len(soup2[i].find_all("span")) < 8:
+                    pass
+                else:
+                    pddata.loc[i] = [
+                        soup2[i].find_all("span")[1].text[0:4],
+                        soup2[i].find_all("span")[1].text[5:],
+                        soup2[i].find_all("span")[3].text,
+                        soup2[i].find_all("span")[5].text[3:],
+                        soup2[i].find_all("span")[6].text[3:],
+                        soup2[i].find_all("span")[7].text[3:],
+                        soup2[i].find_all("span")[8].text[3:]]
                     #print(soup2[i])
                     #error_data = str(soup2[i])
                     #error = open(".\error_data.txt", "r")
@@ -149,7 +121,6 @@ class ThreadUrl(object):
                     #error.close()
 
 
-            pddata = pd.DataFrame(outdatalist, columns=["券商", "标题", "日期", "类别", "作者", "评级", "页数"])
             print(pddata.head())
             reports = [report(name=pddata["券商"][j], title=pddata["标题"][j], date=pddata["日期"][j], \
                              classes=pddata["类别"][j], author=pddata["作者"][j], score=pddata["评级"][j],\
