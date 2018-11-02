@@ -4,13 +4,13 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 import sqlalchemy
 
-
 class MySQLAlchemy(object):
-    def __init__(self,user,dbName):
+    def __init__(self,Base,user,dbName):
         """python和Mysql的接口类"""
-        url = "mysql+mysqlconnector://root:8261426@localhost:3306/%s" % dbName
+        self.dbName =dbName
+        url = "mysql+mysqlconnector://root:8261426@localhost:3306/%s" % self.dbName
         eng = create_engine(url)
-
+        self.Base =Base
         Session = sessionmaker(bind=eng)
         self.session = Session()
         self.eng = eng
@@ -20,7 +20,7 @@ class MySQLAlchemy(object):
     def creat(self):
         """创建表"""
         print("创建表",self.user.__tablename__)
-        Base.metadata.create_all(self.eng)
+        self.Base.metadata.create_all(self.eng)
 
     def insert(self,user,option):
         """插入数据"""
@@ -39,6 +39,9 @@ class MySQLAlchemy(object):
 
     def close(self):
         self.eng.dispose()
+
+
+
 
 from sqlalchemy import Sequence
 Base = declarative_base()
@@ -60,17 +63,3 @@ class dateMon(Base):
     def __repr__(self):
         return "<User(name='%s')>" % (self.date)
 
-class report(Base):
-    __tablename__ = 'report'
-    __table_args__ = {
-        "mysql_charset": "utf8"
-    }
-
-    id = Column(Integer, primary_key=True,autoincrement=True)
-    name = Column(String(50))
-    title = Column(String(200))
-    date = Column(String(50))
-    classes = Column(String(50))
-    author = Column(String(50))
-    score = Column(String(50))
-    pages = Column(Integer)
