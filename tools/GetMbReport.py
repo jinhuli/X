@@ -102,6 +102,8 @@ class ThreadUrl2(threading.Thread):
 
             pddata = pd.DataFrame([], columns=["券商","行业名称" ,"标题", "日期", "类别", "作者", "评级", "页数"])
             for i in range(len(soup)):
+                if re.search("\w+行业", soup_title[i].text) == None:
+                    continue
 
                 pddata.loc[i] = [
                     re.search("\w+-", soup_title[i].text).group()[0:4],
@@ -122,9 +124,9 @@ class ThreadUrl2(threading.Thread):
             deltatime = arrow.get(pddata["日期"].max(), "YYYY-MM-DD") - arrow.get(self.lastdate, "YYYY-MM-DD")
             print("爬取至日期", pddata["日期"].max(), "目标日期", self.lastdate)
 
-            reports = [industrial(name=pddata["券商"][j], industrial=pddata["标题"][j],title=pddata["标题"][j], date=pddata["日期"][j], \
+            reports = [industrial(name=pddata["券商"][j], industrial=pddata["行业名称"][j],title=pddata["标题"][j], date=pddata["日期"][j], \
                              classes=pddata["类别"][j], author=pddata["作者"][j], score=pddata["评级"][j],\
-                             pages=int(pddata["页数"][j][0])) for j in range(len(pddata))]
+                             pages=int(pddata["页数"][j])) for j in pddata.index.tolist()]
             self.con.insert(reports, 2)
 
             if deltatime.days < 0:
@@ -211,7 +213,7 @@ class ThreadUrl3(threading.Thread):
 
             reports = [report(name=pddata["券商"][j],  name_sec = pddata["公司名称"][j],sec_num = pddata["公司代码"][j],title=pddata["标题"][j], date=pddata["日期"][j], \
                              classes=pddata["类别"][j], author=pddata["作者"][j], score=pddata["评级"][j],\
-                             pages=int(pddata["页数"][j][0])) for j in range(len(pddata))]
+                             pages=int(pddata["页数"][j])) for j in pddata.index.tolist()]
             self.con.insert(reports, 2)
 
             if deltatime.days<0:
@@ -224,20 +226,28 @@ class ThreadUrl3(threading.Thread):
 
 
 
-def main():
-    oriUrl2 = 'http://www.hibor.com.cn/microns_2_'
-    oriUrl3 = 'http://www.hibor.com.cn/microns_1_'
+def main_indus():
+    oriUrl2 = 'http://www.hibor.com.cn/microns_2_'  ###行业报告
+    oriUrl3 = 'http://www.hibor.com.cn/microns_1_'  ###个股报告
+    pages = queue.Queue()
+
+    for i in range(1, 10000):
+        pages.put(oriUrl2 + str(i)+".html")
+    t = ThreadUrl2(pages,Base,"2007-10-01")
+    t.thread.start()
+
+def main_stock():
+    oriUrl3 = 'http://www.hibor.com.cn/microns_1_'  ###个股报告
     pages = queue.Queue()
 
     for i in range(1, 500):
-        pages.put(oriUrl2 + str(i)+".html")
+        pages.put(oriUrl3 + str(i)+".html")
     t = ThreadUrl2(pages,Base,"2018-10-01")
     t.thread.start()
 
 
-
 if __name__ == '__main__':
-    main()
+    main_indus()
 
 
 
