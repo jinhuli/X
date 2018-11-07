@@ -175,6 +175,8 @@ def runmain(argv=None):
     cumPReturns = 1
     cumBReturns = 1
     for f in files:
+
+
         if len(sectorNames) == 0:
             data = np.recfromtxt(f, delimiter=',', names=True)
             names = data.dtype.names
@@ -182,6 +184,7 @@ def runmain(argv=None):
             sectorNames = set(data['Sector'])
             sectorNames = list(sectorNames)
             linkedAttr = np.zeros((len(sectorNames), 4))
+
 
         outfile.write(f + '\n')
         effectNames, attr, overallPortfolioReturns, overallBenchmarkReturns = runPA(f, random, sectorNames, outfile)
