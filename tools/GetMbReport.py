@@ -3,6 +3,7 @@ import queue
 import urllib.request
 import urllib.parse
 import http.cookiejar
+import urllib.error
 import pandas as pd
 from bs4 import *
 from tools.toMysql import MySQLAlchemy
@@ -64,19 +65,40 @@ class ThreadUrl2(threading.Thread):
             'Upgrade-Insecure-Requests': ' 1',
             'User-Agent': ' Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.84 Safari/537.36',
         }
+
+    def conn(self):
+
         dlurl = 'http://www.hibor.com.cn/toplogin.asp?action=login'
         datapost = {"name": "xuzhipeng8", "pwd": 'xuzhipeng8261426', 'tijiao.x': '12', 'tijiao.y': '2',
                     'checkbox': 'on'}
         postdata = urllib.parse.urlencode(datapost).encode("utf-8")
         req = urllib.request.Request(dlurl, postdata, headers=self.headers)
-        cjar = http.cookiejar.CookieJar()
-        self.opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cjar))
-        urllib.request.install_opener(self.opener)
-        file=self.opener.open(req)
-        data = file.read()
-        file = open("pages.html", "wb")
-        file.write(data)
-        file.close()
+        cjar1 = http.cookiejar.CookieJar()
+        try:
+
+            proxy = urllib.request.ProxyHandler({'http': 'http://183.15.120.81:3128'})
+
+            self.opener = urllib.request.build_opener(proxy,urllib.request.HTTPHandler,urllib.request.HTTPCookieProcessor(cjar1))
+
+            urllib.request.install_opener(self.opener)
+            file = self.opener.open(req)
+            data = file.read()
+            file = open("pages.html", "wb")
+            file.write(data)
+            file.close()
+
+        except urllib.error.URLError as e:
+            if hasattr(e,"code"):
+                print(e.code)
+
+            if hasattr(e,"reason"):
+                print(e.reason)
+            time.sleep(5)
+
+        except Exception as e:
+            print("exception:" +str(e))
+            time.sleep(1)
+
 
     def run(self):
         file = open('errorlog.txt', "a+")
@@ -231,9 +253,10 @@ def main_indus():
     oriUrl3 = 'http://www.hibor.com.cn/microns_1_'  ###个股报告
     pages = queue.Queue()
 
-    for i in range(1, 10000):
+    for i in range(1, 100):
         pages.put(oriUrl2 + str(i)+".html")
     t = ThreadUrl2(pages,Base,"2007-10-01")
+    t.conn()
     t.thread.start()
 
 def main_stock():
