@@ -3,7 +3,6 @@ import glob as glob
 import sys
 from optparse import OptionParser
 
-
 def runPA(filename, random, sectorNames, outfile):
     data = np.recfromtxt(filename, delimiter=',', names=True)
     names = data.dtype.names
@@ -126,8 +125,7 @@ def runPA(filename, random, sectorNames, outfile):
 
     outfile.write('overallPortfolioReturns' + ',' + str(overallPortfolioReturns) + '\n')
     outfile.write('overallBenchmarkReturns' + ',' + str(overallBenchmarkReturns) + '\n')
-
-    return (effectNames, attr, overallPortfolioReturns, overallBenchmarkReturns)
+    return effectNames, attr, overallPortfolioReturns, overallBenchmarkReturns
 
 
 def checkSum(sectors, sectorAllocationEffects, styleAllocationEffects, selectionEffects, interactionEffects,
@@ -156,6 +154,7 @@ def addToDict(dictMap, name, value):
         dictMap[name] = value
 
 
+
 def runmain(argv=None):
     if argv == None:
         argv = sys.argv
@@ -174,34 +173,35 @@ def runmain(argv=None):
     sectorNames = []
     cumPReturns = 1
     cumBReturns = 1
+
     for f in files:
-
-
         if len(sectorNames) == 0:
             data = np.recfromtxt(f, delimiter=',', names=True)
             names = data.dtype.names
             sectors = {}
             sectorNames = set(data['Sector'])
             sectorNames = list(sectorNames)
+            global linkedAttr
             linkedAttr = np.zeros((len(sectorNames), 4))
 
-
         outfile.write(f + '\n')
+        global effectNames
         effectNames, attr, overallPortfolioReturns, overallBenchmarkReturns = runPA(f, random, sectorNames, outfile)
-        periodCoeff = (np.log(1 + overallPortfolioReturns) - np.log(1 + overallBenchmarkReturns)) / (overallPortfolioReturns - overallBenchmarkReturns)
+        periodCoeff = (np.log(1 + overallPortfolioReturns) - np.log(1 + overallBenchmarkReturns)) / (
+                    overallPortfolioReturns - overallBenchmarkReturns)
         linkedAttr += attr * periodCoeff
         cumPReturns = cumPReturns * (1 + overallPortfolioReturns)
         cumBReturns = cumBReturns * (1 + overallBenchmarkReturns)
 
     overallCoeff = (np.log(cumPReturns) - np.log(cumBReturns)) / (cumPReturns - cumBReturns)
-
     linkedAttr = linkedAttr / overallCoeff
 
     header = 'Sector'
+
     for effect in effectNames:
         header = header + ',' + effect
-    outfile.write(header + '\n')
 
+    outfile.write(header + '\n')
     for sector in sectorNames:
         dataStr = sector
         index = sectorNames.index(sector)
@@ -215,9 +215,10 @@ def runmain(argv=None):
     cumActiveReturns = cumPReturns - cumBReturns
     linkedSumofEffects = linkedAttr.sum()
     if (abs(cumActiveReturns - linkedSumofEffects) < 0.0001):
-        print (True)
+        print(True)
     else:
-        print (False)
+        print(False)
+
     outfile.write('overall cumulative active returns,' + str(cumActiveReturns) + '\n')
     outfile.write('sum of linked effects,' + str(linkedSumofEffects) + '\n')
     outfile.close()
@@ -225,3 +226,4 @@ def runmain(argv=None):
 
 if __name__ == "__main__":
     runmain()
+
