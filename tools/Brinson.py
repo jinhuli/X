@@ -3,9 +3,18 @@ import glob as glob
 import sys
 from optparse import OptionParser
 
+def addToDict(dictMap, name, value):
+    try:
+        preValue = dictMap[name]
+        dictMap[name] = preValue + value
+    except KeyError:
+        dictMap[name] = value
+
+
+
 def runPA(filename, random, sectorNames, outfile):
-    data = np.recfromtxt(filename, delimiter=',', names=True)
-    names = data.dtype.names
+    data = np.recfromtxt(filename, delimiter=',', names=True) #数据
+    names = data.dtype.names    #
     sectors = {}
     for name in sectorNames:
         sectors[name] = {}
@@ -146,13 +155,6 @@ def checkSum(sectors, sectorAllocationEffects, styleAllocationEffects, selection
     outfile.write('sum of effects,' + str(sumofEffects) + '\n')
 
 
-def addToDict(dictMap, name, value):
-    try:
-        preValue = dictMap[name]
-        dictMap[name] = preValue + value
-    except KeyError:
-        dictMap[name] = value
-
 
 
 def runmain(argv=None):
@@ -181,11 +183,10 @@ def runmain(argv=None):
             sectors = {}
             sectorNames = set(data['Sector'])
             sectorNames = list(sectorNames)
-            global linkedAttr
             linkedAttr = np.zeros((len(sectorNames), 4))
 
         outfile.write(f + '\n')
-        global effectNames
+
         effectNames, attr, overallPortfolioReturns, overallBenchmarkReturns = runPA(f, random, sectorNames, outfile)
         periodCoeff = (np.log(1 + overallPortfolioReturns) - np.log(1 + overallBenchmarkReturns)) / (
                     overallPortfolioReturns - overallBenchmarkReturns)
