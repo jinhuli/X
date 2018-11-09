@@ -10,8 +10,6 @@ def addToDict(dictMap, name, value):
     except KeyError:
         dictMap[name] = value
 
-
-
 def runPA(filename, random, sectorNames, outfile):
     data = np.recfromtxt(filename, delimiter=',', names=True) #数据
     names = data.dtype.names    #
@@ -80,20 +78,20 @@ def runPA(filename, random, sectorNames, outfile):
         portfolioReturns[assetName] = assetReturns
         benchmarkReturns[assetName] = assetReturns
 
-    for sector, styleDict in sectors.iteritems():
-        sectorPW = portfolioWeights.get(sector);
-        sectorBW = benchmarkWeights.get(sector);
-        sectorPR = portfolioReturns.get(sector);
-        sectorBR = benchmarkReturns.get(sector);
+    for sector, styleDict in sectors.items():
+        sectorPW = portfolioWeights.get(sector)
+        sectorBW = benchmarkWeights.get(sector)
+        sectorPR = portfolioReturns.get(sector)
+        sectorBR = benchmarkReturns.get(sector)
         sectorIntact = 0
         sectorSelec = 0
         sectorStyleAlloc = 0
         sectorAlloc = (sectorPW - sectorBW) * (sectorBR / sectorBW - overallBenchmarkReturns)
-        for style, styDict in styleDict.iteritems():
-            stylePW = portfolioWeights.get(style);
-            styleBW = benchmarkWeights.get(style);
-            stylePR = portfolioReturns.get(style);
-            styleBR = benchmarkReturns.get(style);
+        for style, styDict in styleDict.items():
+            stylePW = portfolioWeights.get(style)
+            styleBW = benchmarkWeights.get(style)
+            stylePR = portfolioReturns.get(style)
+            styleBR = benchmarkReturns.get(style)
             styleIntact = 0
             styleSelec = 0
             styleAlloc = sectorPW * (stylePW / sectorPW - styleBW / sectorBW) * (
@@ -101,10 +99,10 @@ def runPA(filename, random, sectorNames, outfile):
             styleAllocationEffects[style] = styleAlloc
             sectorStyleAlloc += styleAlloc
             for asset in styDict.keys():
-                assetPW = portfolioWeights.get(asset);
-                assetBW = benchmarkWeights.get(asset);
-                assetPR = portfolioReturns.get(asset);
-                assetBR = benchmarkReturns.get(asset);
+                assetPW = portfolioWeights.get(asset)
+                assetBW = benchmarkWeights.get(asset)
+                assetPR = portfolioReturns.get(asset)
+                assetBR = benchmarkReturns.get(asset)
                 selec = styleBW * (assetPW / stylePW - assetBW / styleBW) * (assetPR - styleBR / styleBW)
                 intact = (assetPW - assetBW) * (stylePR / stylePW - styleBR / styleBW)
                 interactionEffects[asset] = selec
@@ -157,20 +155,20 @@ def checkSum(sectors, sectorAllocationEffects, styleAllocationEffects, selection
 
 
 
-def runmain(argv=None):
-    if argv == None:
+def runmain(argv=1):
+    if argv == 1:
         argv = sys.argv
 
     usage = 'usage: %prog [options]\n'
     cmdlineParser = OptionParser(usage=usage)
-    cmdlineParser.add_option("--dataFilePattern", dest="pattern", default='./data/*.csv',
+    cmdlineParser.add_option("--dataFilePattern", dest="pattern", default='../data/*.csv',
                              help='Name of the datafile containing returns data (default: %default)')
     cmdlineParser.add_option("--randomData", dest="random", default=False,
                              help='Use randomly genrated data (default: %default)')
 
     (cmdoptions, args) = cmdlineParser.parse_args(argv)
     random = cmdoptions.random
-    outfile = open('returnsPA.out', 'w')
+    outfile = open('returnsPA.txt', 'w')
     files = glob.glob(cmdoptions.pattern)
     sectorNames = []
     cumPReturns = 1
@@ -183,6 +181,7 @@ def runmain(argv=None):
             sectors = {}
             sectorNames = set(data['Sector'])
             sectorNames = list(sectorNames)
+
             linkedAttr = np.zeros((len(sectorNames), 4))
 
         outfile.write(f + '\n')
@@ -209,7 +208,7 @@ def runmain(argv=None):
         data = linkedAttr[sectorNames.index(sector)]
         count = 0
         while count < len(data):
-            dataStr = dataStr + ',' + str(data[count])
+            dataStr = str(dataStr) + ',' + str(data[count])
             count = count + 1
         outfile.write(dataStr + '\n')
 
