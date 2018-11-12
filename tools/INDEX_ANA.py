@@ -61,7 +61,7 @@ class index(object):
         self.codelist = pd.DataFrame(codelist.Data, columns=codelist.Codes, index=codelist.Fields,dtype=float).T
         return self.codelist
 
-    def get_factor(self):
+    def get_factor_fromwind(self):
         """获取指数截面因子"""
         tradedate = datetime.strptime(self.tradate, '%Y-%m-%d').strftime('%Y%m%d')
         startdate = w.tdaysoffset(-1, "2018-10-10", "Period=M").Data[0][0].strftime('%Y%m%d')
@@ -71,11 +71,18 @@ class index(object):
         self.factor = pd.DataFrame(factor.Data, columns=factor.Codes, index=factor.Fields,dtype=float).T
         return self.factor
 
+    def get_factor_fromsql(self):
+        pass
+
+    def get_factorfromcsv(self):
+        pass
+
+
     def get_data(self):
         codelist = self.get_code_list()
         codelist.set_index(['wind_code'], inplace = True)
 
-        factor = self.get_factor()
+        factor = self.get_factor_fromwind()
         self.data = pd.concat([codelist,factor], axis=1, join_axes=[factor.index])
         return self.data
 

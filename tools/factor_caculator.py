@@ -4,9 +4,53 @@ from datetime import *
 import pandas as pd
 import numpy as np
 from collections import OrderedDict #保持Key的顺序
-thsLogin= THS_iFinDLogin("cfzq267", "592935")
 
 THS_DateSerial(",".join(A_stocks_list[0:10]),'ths_trading_status_stock;ths_listed_days_stock',';','Days:Tradedays,Fill:Previous,Interval:D','2018-07-15','2018-08-15')
+
+
+##因子分组函数
+def cla(n, lim):
+    return '[%.f ,%.f)' % (lim * ((n-0.01 )// lim), lim * ((n-0.01 ) // lim) + lim)
+
+  ##  b = data["VAL_FLOATMV"].apply(cla, args=(100,)).values
+  ##  data["%s_3" % factor.upper()] = b
+
+def visual(data,title, x=None, y=None):
+    fig, ax = plt.subplots()
+    ax.plot(x, y)
+    plt.show()
+
+def replace1(x,mean,std):
+    if x == None:
+        x= None
+    elif x > mean+3*std:
+        x= None
+    elif x <=mean+3*std and x >=mean-3*std:
+        x=x
+    else:
+        x=None
+    return x
+
+def replace2(x,mean,std):
+    if x == None:
+        x= None
+    elif x > mean+3*std:
+        x= None
+    elif x <=mean+3*std and x >0:
+        x=x
+    else:
+        x=None
+    return x
+
+def DataCleaning(data,cloumn,model):
+    """1:正态分布变量，2左边截＞0，右边3西格玛"""
+    if model ==1:
+        data[cloumn] = data[cloumn].map(
+            lambda x: replace1(x, data[cloumn].median(), data[cloumn].std()))
+    if model == 2:
+        data[cloumn] = data[cloumn].map(
+            lambda x: replace2(x, data[cloumn].median(), data[cloumn].std()))
+
 
 
 def get_stocks(trDate):
