@@ -1,4 +1,4 @@
-from tools.get_tushare_data import *
+from tools.getTushareData import *
 
 def clockhandel(Event):
     date = Event.data.strftime("%Y-%m-%d")

@@ -65,7 +65,7 @@ if __name__ == '__main__':
 
 
 
-    from tools.get_tushare_data import *
+    from tools.getTushareData import *
 
     clock.register(clockhandel)
     clock.start()

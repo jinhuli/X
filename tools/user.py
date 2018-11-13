@@ -40,3 +40,6 @@ class report(Base):
     author = Column(String(50))
     score = Column(String(50))
     pages = Column(Integer)
+
+
+class factor(Base):

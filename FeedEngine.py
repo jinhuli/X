@@ -12,7 +12,7 @@ from EventEngine import Event
 
 class MarketEngine:
     """行情推送引擎基类"""
-    from tools.get_tushare_data import *
+    from tools.getTushareData import *
 
     EventType = 'Market'
     PushInterval = 1

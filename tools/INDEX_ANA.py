@@ -11,37 +11,11 @@ mpl.rcParams['font.sans-serif']=['SimHei'] #指定默认字体 SimHei为黑体
 mpl.rcParams['axes.unicode_minus']=False #用来正常显示负号
 plt.style.use('ggplot')
 
-from docx import Document
 import matplotlib
 matplotlib.matplotlib_fname()
 w.start()
 
 
-def writeTable(data,document):
-
-    a = len(data)
-    b = len(data.columns)
-    table = document.add_table(rows=1, cols=b + 1)
-    hdr_cells = table.rows[0].cells
-    hdr_cells[0].text = "index"
-
-    for cols in range(b):
-        hdr_cells[cols + 1].text = data.columns[cols]
-
-    for i in range(a):
-        row_cells = table.add_row().cells
-        row_cells[0].text = str(data.index[i])
-        print("写入第%s行数据"%i)
-        for j in range(b):
-            if type(data.iloc[i, j]) == pd.Timestamp:
-                row_cells[j + 1].text = data.iloc[i, j].strftime('%Y-%m-%d')
-            elif type(data.iloc[i, j]) == str:
-                row_cells[j + 1].text = data.iloc[i, j]
-            elif type(data.iloc[i, j]) == float:
-                row_cells[j + 1].text = str(np.round(data.iloc[i, j],2))
-
-            else:
-                print("数据包含异常格式变量")
 
 ###指数截面表现#####
 class index(object):
@@ -55,6 +29,10 @@ class index(object):
         codelist = w.wset('indexconstituent', "date=" + self.tradate + ";windcode=" + self.indexCode)
         self.list = pd.DataFrame(codelist.Data, columns=codelist.Codes, index=codelist.Fields,dtype=float).T["wind_code"].tolist()
 
+        self.tradedate2 = datetime.strptime(self.tradate, '%Y-%m-%d').strftime('%Y%m%d')
+        self.startdate = w.tdaysoffset(-1, self.tradate, "Period=M").Data[0][0].strftime('%Y%m%d')
+        self.enddate = w.tdaysoffset(-1, self.tradate, "Period=M").Data[0][0].strftime('%Y%m%d')
+
     def get_code_list(self):
         """获取指数成分"""
         codelist = w.wset("indexconstituent","date="+self.tradate+";windcode="+self.indexCode)
@@ -63,11 +41,10 @@ class index(object):
 
     def get_factor_fromwind(self):
         """获取指数截面因子"""
-        tradedate = datetime.strptime(self.tradate, '%Y-%m-%d').strftime('%Y%m%d')
-        startdate = w.tdaysoffset(-1, "2018-10-10", "Period=M").Data[0][0].strftime('%Y%m%d')
+
         year = datetime.strptime(self.tradate, '%Y-%m-%d').year
         ind='pct_chg_per,industry_CSRC12,fa_roicebit_ttm,fa_ocftoor_ttm,fa_debttoasset,fa_npgr_ttm,fa_orgr_ttm,tech_price1y,pe_ttm,val_mvtoebitda_ttm,pb_lf,beta_24m,annualstdevr_24m'
-        factor =w.wss(self.list, ind,"startDate=%s;endDate=%s;tradeDate=%s;industryType=3"%(startdate,tradedate,tradedate))
+        factor =w.wss(self.list, ind,"startDate=%s;endDate=%s;tradeDate=%s;industryType=3"%(self.startdate,self.tradedate2,self.tradedate2))
         self.factor = pd.DataFrame(factor.Data, columns=factor.Codes, index=factor.Fields,dtype=float).T
         return self.factor
 
@@ -75,6 +52,9 @@ class index(object):
         pass
 
     def get_factorfromcsv(self):
+        pass
+
+    def saveDataTosql(self):
         pass
 
 
@@ -177,12 +157,6 @@ if __name__ == '__main__':
 
 
 
-    document = Document()  #创建文档类
-    document.add_heading("中证500指数分析", 0)
-    p = document.add_paragraph('本报告由python程序自动生成，数据来自于WIND')
-    document.add_heading('净值走势')
-    from docx.shared import Inches
-    document.add_picture("E:\\github\\X\\2.jpg", width=Inches(4.0))
     #####常用因子######
 
     ##价值类##
@@ -307,16 +281,10 @@ plt.show()
 
 
     ##因子相关性
-    document.add_heading('因子相关性分析')
+
 
     #####收益归因--分组收益统计####
-    document.add_heading('指数收益归因')
 
-    document.add_heading('行业归因', level = 2)
-
-    document.add_heading('风格归因', level = 2)
-
-    document.save("E:\\github\\X\\demo.docx")
 
 
 

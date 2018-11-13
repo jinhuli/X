@@ -8,14 +8,14 @@ from EventEngine import *
 import time
 w.start()
 
-from tools.get_tushare_data import *
+from tools.getTushareData import *
 w.start()
 tradedate=w.tdays("2018-01-01", "2018-04-07", "").Data[0]
 date=w.tdays("2018-01-01", "2018-04-01", "Days=Alldays").Data[0]
 clockevent=ClockEvent("Clock",tradedate)
 clock=ClockEngine(EventEngine(),clockevent)
 
-from tools.get_tushare_data import *
+from tools.getTushareData import *
 
 def clockhandel(Event):
     date=Event.data.strftime("%Y-%m-%d")
